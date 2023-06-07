@@ -15,7 +15,8 @@ import java.net.*;
 
 @Path("contacts")
 public class ContactsResource {
-
+	Socket socketDB;
+	
     /**
      * Implementazione di GET "/contacts".
      */
@@ -24,6 +25,38 @@ public class ContactsResource {
     public Response getContacts() {
         // Si apre una socket verso il database, si ottengono i dati e si
         // costruisce la risposta.
+    	
+    	try {
+    		socketDB = new Socket("localhost", 80);
+    		System.out.println("Connected");
+    		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
+    		var in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
+    		
+    		
+    		out.println("*2\r\n$6\r\nGETSCR\r\n");
+    		out.flush();
+    		
+    		
+    		
+
+            String inputLine;
+
+            while ((inputLine = in.readLine()) != null) {
+            	System.out.println("Read: " + inputLine);
+                if (".".equals(inputLine)) {
+                    out.println("bye");
+                    break;
+                }
+            }
+    		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+    	
+    	
+    	
+    	return null;
     }
 
     /**
@@ -73,9 +106,11 @@ public class ContactsResource {
         // Si apre una socket verso il database, si ottiene il contatto con
         // l'ID specificato.
 
-        if (contact == null)
-            return Response.status(Response.Status.NOT_FOUND).build();
+        //if (contact == null)
+          //  return Response.status(Response.Status.NOT_FOUND).build();
 
-        return Response.ok(contact).build();
+        //return Response.ok(contact).build();
+    	
+    	return null;
     }
 }

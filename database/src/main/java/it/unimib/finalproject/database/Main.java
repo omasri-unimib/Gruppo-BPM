@@ -2,7 +2,8 @@ package it.unimib.finalproject.database;
 
 import java.net.*;
 import java.io.*;
-
+import java.util.Map;
+import java.util.HashMap;
 /**
  * Classe principale in cui parte il database.
  */
@@ -10,7 +11,12 @@ public class Main {
     /**
      * Porta di ascolto.
      */
-    public static final int PORT = 3030;
+    public static final int PORT = 80;
+    private static Map db;
+    
+   
+    
+    
 
     /**
      * Avvia il database e l'ascolto di nuove connessioni.
@@ -18,10 +24,16 @@ public class Main {
      * @return Un server HTTP Grizzly.
      */
     public static void startServer() {
+    	db = new HashMap();
+    	db.put("sala1", "*2\r\n$2\r\nF1\r\n$2\r\nF2\r\n");
+    	
+    	
+    	ServerSocket server = null;
+    	
         try {
-            var server = new ServerSocket(PORT);
-
+            server = new ServerSocket(PORT);
             System.out.println("Database listening at localhost:" + PORT);
+           
             while (true)
                 new Handler(server.accept()).start();
         } catch (IOException e) {
@@ -29,6 +41,9 @@ public class Main {
         }
     }
 
+    
+    
+    
     /**
      * Handler di una connessione del client.
      */
@@ -41,18 +56,25 @@ public class Main {
 
         public void run() {
             try {
+            	System.out.println("Client connected."  + client.getRemoteSocketAddress());
+            	
+            	
                 var out = new PrintWriter(client.getOutputStream(), true);
                 var in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
                 String inputLine;
 
                 while ((inputLine = in.readLine()) != null) {
-                    if (".".equals(inputLine)) {
-                        out.println("bye");
+                	System.out.println("Read: " + inputLine);
+                    if ("".equals(inputLine)) {
+                        //out.println("bye");
+                    	System.out.println("Command terminated");
                         break;
                     }
-                    out.println(inputLine);
                 }
+                
+                out.println(db.get("sala1"));
+                System.out.println("Written");
 
                 in.close();
                 out.close();
@@ -62,6 +84,8 @@ public class Main {
             }
         }
     }
+    
+    
 
     /**
      * Metodo principale di avvio del database.
