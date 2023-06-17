@@ -6,6 +6,13 @@ La documentazione può variare molto in base al tipo di protocollo che si vuole 
 
 # Protocollo TCP (Database)
 
+Reservation nel DB: <ArrayLength>#<RES>#<Screening Id>#<Seat 1 Id># ... #<Seat(ArrayLength -2) Id>
+Reservation trasmesso: <ArrayLength>#<RES>#<Screening Id>#<Seat 1 Id># ... #<Seat(ArrayLength -2) Id>#id
+
+
+
+
+
 
 # Comandi
 

@@ -13,32 +13,33 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.io.*;
 import java.net.*;
 
-@Path("contacts")
-public class ContactsResource {
+@Path("reservations")
+public class ReservationResource {
+	
+	public static final String TYPE = "RES";
+	public static final int DB_PORT = 8081;
+	
 	Socket socketDB;
 	
+	
+	
     /**
-     * Implementazione di GET "/contacts".
+     * Implementazione di GET "/reservations".
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getContacts() {
-        // Si apre una socket verso il database, si ottengono i dati e si
-        // costruisce la risposta.
-    	
+    public Response getReservations() {
     	try {
-    		socketDB = new Socket("localhost", 80);
+    		socketDB = new Socket("localhost", DB_PORT);
     		System.out.println("Connected");
     		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
     		var in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
     		
     		
-    		out.println("*2\r\n$6\r\nGETSCR\r\n");
+    		out.println("GET#" + TYPE + "#*");
     		out.flush();
     		
     		
-    		
-
             String inputLine;
 
             while ((inputLine = in.readLine()) != null) {
@@ -53,18 +54,15 @@ public class ContactsResource {
 			e.printStackTrace();
 		}
     	
-    	
-    	
-    	
     	return null;
     }
 
     /**
-     * Implementazione di POST "/contacts".
+     * Implementazione di POST "/reservations".
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getContacts(String body) {
+    public Response setReservations(String body) {
         var contact = new Contact();
 
         try {
@@ -87,7 +85,7 @@ public class ContactsResource {
         // applica al contatto e lo si aggiunge.
 
         try {
-            var uri = new URI("/contacts/" + contact.getId());
+            var uri = new URI("/reservations/" + contact.getId());
 
             return Response.created(uri).build();
         } catch (URISyntaxException e) {
@@ -97,20 +95,45 @@ public class ContactsResource {
     }
 
     /**
-     * Implementazione di GET "/contacts/{id}".
+     * Implementazione di GET "/reservations/{id}".
      */
     @Path("/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getContact(@PathParam("id") int id) {
-        // Si apre una socket verso il database, si ottiene il contatto con
-        // l'ID specificato.
+    public Response getReservation(@PathParam("id") int id) {
+    	
+    	try {
+    		socketDB = new Socket("localhost", DB_PORT);
+    		System.out.println("Connected");
+    		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
+    		var in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
+    		
+    		
+    		out.println("GET#" + TYPE + "#" + id);
+    		out.flush();
+    		
+            String inputLine;
+
+            while ((inputLine = in.readLine()) != null) {
+            	System.out.println("Read: " + inputLine);
+                if (".".equals(inputLine)) {
+                    out.println("bye");
+                    break;
+                }
+            }
+    		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+    	return null;
+    	
 
         //if (contact == null)
           //  return Response.status(Response.Status.NOT_FOUND).build();
 
         //return Response.ok(contact).build();
     	
-    	return null;
     }
 }
+

@@ -1,0 +1,12 @@
+1,*4#FILM#Interstellar#Christopher Nolan#2014 
+2,*4#FILM#Avatar#James Cameron#2009
+3,*4#FILM#Batman#Tim Burton#1989
+4,*4#FILM#Avatar: The Way of Water#James Cameron#2022
+5,*5#SCR#1#1#2023-07-29#22:00
+6,*5#SCR#1#2#2023-07-29#23:00
+7,*5#SCR#2#1#2023-07-29#19:00
+8,*5#SCR#2#2#2023-07-29#23:00
+9,*7#RES#1#1#2#3#4#5
+10,*3#RES#1#6
+11,*4#RES#1#9#10
+12,*7#RES#2#1#2#3#4#5
