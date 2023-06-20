@@ -16,8 +16,26 @@ import java.net.*;
 @Path("films")
 public class FilmsResource {
 	
+	public static final String READ_TYPE_COMMAND = "READ-VALUE-IF-CONTAINS";
+	public static final String READ_ID_COMMAND = "READ-VALUE";
+	public static final String WRITE_VALUE_COMMAND = "WRITE-VALUE";
+	public static final String WRITE_KEY_VALUE_COMMAND = "WRITE-KEY-VALUE";
+	public static final String GEN_KEY_COMMAND = "GEN-KEY";
 	public static final String TYPE = "FILM";
+	public static final String TRANSM_DEL = "%";
+	public static final String SEP_DEL = ":";
+	
+	
+	/* Non riguarda il protocollo, ma è specifico a questa applcazione
+	   Rappresenta la posizione in cui viene specificato il tipo di dato
+	   (sala, prenotazione, film ... ) nel DataBase specifico a 
+	   questa applicazione. 
+	 */
+	public static final int TYPE_OFFSET_VALUE = 3; 
+	
 	public static final int DB_PORT = 8081;
+	
+	
 	
 	Socket socketDB;
 	
@@ -36,10 +54,11 @@ public class FilmsResource {
     		socketDB = new Socket("localhost", DB_PORT);
     		System.out.println("Connected");
     		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
-    		var in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
+    		BufferedReader in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
     		
     		
-    		out.println("GET#" + TYPE + "#*");
+    		out.println(READ_TYPE_COMMAND + TRANSM_DEL + TYPE + TRANSM_DEL + TYPE_OFFSET_VALUE);
+    		out.println(".");
     		out.flush();
     		
     		
@@ -48,10 +67,13 @@ public class FilmsResource {
             while ((inputLine = in.readLine()) != null) {
             	System.out.println("Read: " + inputLine);
                 if (".".equals(inputLine)) {
-                    out.println("bye");
                     break;
                 }
             }
+            
+    		in.close();
+            out.close();
+            socketDB.close();
     		
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -61,14 +83,13 @@ public class FilmsResource {
     }
 
     /**
-     * Implementazione di POST "/contacts".
+     * Implementazione di POST "/films".
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response setFilms(String body) {
         var contact = new Contact();
-
-        try {
+        /*try {
             var mapper = new ObjectMapper();
             contact = mapper.readValue(body, Contact.class);
 
@@ -83,12 +104,66 @@ public class FilmsResource {
             System.out.println(e);
             return Response.serverError().build();
         }
+        */
+        
+        
+        
+        
 
         // Si apre una socket verso il database, si ottiene un nuovo ID, lo si
         // applica al contatto e lo si aggiunge.
-
         try {
-            var uri = new URI("/contacts/" + contact.getId());
+    		socketDB = new Socket("localhost", DB_PORT);
+    		System.out.println("Connected");
+    		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
+    		BufferedReader in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
+    		
+    		
+    		out.println("GEN-KEY");
+    		out.println(".");
+    		out.flush();
+    		
+    		
+            String inputLine;
+            String key = "";
+            while ((inputLine = in.readLine()) != null) {
+            	if (key.equals("")) {
+            		key = inputLine;
+            	}
+            	System.out.println("Read: " + inputLine);
+                if (".".equals(inputLine)) {
+                    break;
+                }
+            }
+            
+            
+            socketDB = new Socket("localhost", DB_PORT);
+    		System.out.println("Connected");
+    		out = new PrintWriter(socketDB.getOutputStream());
+    		in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
+            
+            out.println("WRITE-KEY-VALUE" + TRANSM_DEL + key + TRANSM_DEL + "TEST");
+            out.println(".");
+            out.flush();
+            
+            while ((inputLine = in.readLine()) != null) {
+            	System.out.println("Read: " + inputLine);
+                if (".".equals(inputLine)) {
+                    break;
+                }
+            }
+            
+            in.close();
+            out.close();
+            socketDB.close();
+    		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        
+        
+        try {
+            var uri = new URI("/films/" + contact.getId());
 
             return Response.created(uri).build();
         } catch (URISyntaxException e) {
@@ -97,8 +172,10 @@ public class FilmsResource {
         }
     }
 
+    
+    
     /**
-     * Implementazione di GET "/contacts/{id}".
+     * Implementazione di GET "/films/{id}".
      */
     @Path("/{id}")
     @GET
@@ -115,7 +192,8 @@ public class FilmsResource {
     		var in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
     		
     		
-    		out.println("GET#" + TYPE + "#" + id);
+    		out.println(READ_ID_COMMAND + TRANSM_DEL + id);
+    		out.println(".");
     		out.flush();
     		
             String inputLine;
@@ -127,6 +205,10 @@ public class FilmsResource {
                     break;
                 }
             }
+            
+            in.close();
+            out.close();
+            socketDB.close();
     		
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -142,4 +224,3 @@ public class FilmsResource {
     	
     }
 }
-

@@ -16,7 +16,22 @@ Reservation trasmesso: <ArrayLength>#<RES>#<Screening Id>#<Seat 1 Id># ... #<Sea
 
 # Comandi
 
-### Ottenere proiezioni (GETSCR) - Get Screenings
+### READ-VALUE
+	READ-VALUE#<*key*>
+
+### READ-VALUE-IF-CONTAINS
+	READ-VALUE-IF-CONTAINS#<*string to search*>#<*start position*>
+
+### WRITE-VALUE
+
+
+### WRITE-KEY-VALUE
+
+
+### GEN-KEY
+
+
+### Ottenere dati (GET) - Get Screenings
 Restituisce le prossime proiezioni (solo quelle future), limitate a una certa data 
 oppure tutte quelle già inserite nel Database
 
