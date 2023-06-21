@@ -14,6 +14,9 @@ public class Main {
     /**
      * Porta di ascolto.
      */
+
+    public static final String EOL = System.getProperty("os.name").startsWith("Windows") ? "\r\n" : "\n";
+
 	public static final String HALL_TYPE = "HALL";
 	public static final String SCR_TYPE = "SCR";
 	public static final String RES_TYPE = "RES";
@@ -29,10 +32,8 @@ public class Main {
 	
     public static final int PORT = 8081;
     private static List<Pair> db;
-    
-   
-    
-    
+
+
 
     /**
      * Avvia il database e l'ascolto di nuove connessioni.
@@ -47,9 +48,9 @@ public class Main {
     	
     	try {
     		String s = Files.readString(Paths.get("data.csv"));
-    		String[] records = s.split("\r\n");
+    		String[] records = s.split(EOL);
     		for(int i = 0; i < records.length; i++) {
-    			System.out.println(records[i].charAt(records[i].length() - 1));
+    			System.out.println(records[i]);
     			db.add(new Pair(records[i].split(",")[0], records[i].split(",")[1])); 
     		}
     	}
@@ -71,8 +72,6 @@ public class Main {
             e.printStackTrace();
         }
     }
-
-    
     
     
     /**
@@ -168,17 +167,14 @@ public class Main {
     public static void main(String[] args) throws IOException {
         startServer();
     }
-    
-    
-    
-    
+
     public static String readAllContaining(List<Pair> db, String content, int pos) {
     	String s = "";
     	for(int i = 0; i < db.size(); i++) {
     		String k = db.get(i).getKey();
     		String v = db.get(i).getValue();
     		if(v.length() > pos + content.length() && 
-    		   v.startsWith(content, pos) /*v.split("#")[1].equals(type)*/) {
+               v.startsWith(content, pos) /*v.split("#")[1].equals(type)*/) {
     			if(s.equals("")) {
     				s += k + SEP_DEL + v;
     			}
@@ -203,10 +199,10 @@ public class Main {
     }
     
     public static String generateKey(List<Pair> db) {
-    	int max = (db.size() == 0) ? -1 : Integer.parseInt(db.get(0).getKey());
+    	String max = (db.size() == 0) ? "\t" : db.get(0).getKey();
     	for (int i = 0; i < db.size(); i ++) {
-    		int val = Integer.parseInt(db.get(i).getKey());
-			if (val > max) {
+    		String val = db.get(i).getKey();
+			if (val.compareTo(max) >= 0) {
 				max = val;
 			}
 		}

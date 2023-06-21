@@ -18,60 +18,139 @@ import java.time.format.DateTimeFormatter;
 @Path("reservation")
 public class ReservationResource {
 
-    public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:m");
+    public static final DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static final DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("H:m");
 
-    public static HashMap<Integer, Reservation> reservations
-        = new HashMap<Integer, Reservation>() {{
-            put(1, new Reservation("Omar", "Masri", "S1", 1, LocalDate.now().toString(), LocalTime.now().format(formatter)));
-            put(2, new Reservation("Besugo","Sassi","S1",2, LocalDate.now().plusDays(10).toString(), LocalTime.now().format(formatter)));
-            put(3, new Reservation("Bes","ssi","S1",2, LocalDate.now().plusDays(1).toString(), LocalTime.now().format(formatter)));
-            put(4, new Reservation("asdasdo","sssAssi","S2",3, LocalDate.now().toString(), LocalTime.now().format(formatter)));
-            put(5, new Reservation("Cristopher","benedux","S2",3, LocalDate.now().toString(), LocalTime.now().format(formatter)));
-        }};
+    public static final String READ_TYPE_COMMAND = "READ-VALUE-IF-CONTAINS";
+	public static final String READ_ID_COMMAND = "READ-VALUE";
+	public static final String WRITE_VALUE_COMMAND = "WRITE-VALUE";
+	public static final String WRITE_KEY_VALUE_COMMAND = "WRITE-KEY-VALUE";
+	public static final String GEN_KEY_COMMAND = "GEN-KEY";
+	public static final String TYPE = "Reservation";
+	public static final String TRANSM_DEL = "%";
+	public static final String SEP_DEL = ":";
+
+
+	/* Non riguarda il protocollo, ma è specifico a questa applcazione
+	   Rappresenta la posizione in cui viene specificato il tipo di dato
+	   (sala, prenotazione, film ... ) nel DataBase specifico a
+	   questa applicazione.
+	 */
+	public static final int TYPE_OFFSET_VALUE = 0;
+
+	public static final int DB_PORT = 8081;
+
+	Socket socketDB;
 
     /**
      * Implementazione  di GET "/reservation".
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getReservation(@QueryParam("hall") String hall, @QueryParam("date") String date, @QueryParam("time") String time) {
+    public Response getReservation(@QueryParam("screening") String screening, @QueryParam("date") String date, @QueryParam("time") String time) {
         // Si apre una socket verso il database, si ottengono i dati e si
         // costruisce la risposta.
-        List<Reservation> result = new ArrayList<Reservation>(reservations.values());
-        System.out.println("1 "+LocalDate.now() + " " + hall + " " + date + " " + time);
+        List<Reservation> result = new ArrayList<Reservation>();
 
-        result.removeIf(x -> (hall != null && !hall.equals(x.getHall())));
-        result.removeIf(x -> (time != null && !time.equals(x.getTime())));
-        result.removeIf(x -> (date != null && !date.equals(x.getDate())));
-        //result.removeIf(x -> (time == x.getTime()));
-        //result.removeIf(x -> (date == x.getDate()));
 
+        try {
+    		socketDB = new Socket("localhost", DB_PORT);
+    		System.out.println("Connected");
+    		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
+    		BufferedReader in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
+
+
+    		out.println(READ_TYPE_COMMAND + TRANSM_DEL + TYPE + TRANSM_DEL + TYPE_OFFSET_VALUE);
+    		out.println(".");
+    		out.flush();
+
+
+            String inputLine;
+
+            while ((inputLine = in.readLine()) != null) {
+            	System.out.println("Read: " + inputLine);
+                String[] splitObjects = inputLine.split(TRANSM_DEL);
+                for(String s : splitObjects){
+                    if(s.trim() != ""){
+                        Reservation temp = new Reservation();
+                        if(temp.Deserialize(s))
+                            result.add(temp);
+                    }
+                }
+                if (".".equals(inputLine)) {
+                    break;
+                }
+            }
+
+    		in.close();
+            out.close();
+            socketDB.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+            return Response.serverError().build();
+		}
+
+        result.removeIf(x -> (screening != null && !screening.equals(x.getScreening())));
+        result.removeIf(x -> (date != null && !date.equals(x.getStringDate())));
+        result.removeIf(x -> (time != null && !time.equals(x.getStringTime())));
 
         return Response.ok(result).build();
     }
 
     /**
-     * Implementazione di GET "/reservation/{id}".
+     * Implementazione di GET "/halls/{id}".
      */
     @Path("/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getReservation(@PathParam("id") int id) {
+    public Response getReservation(@PathParam("id") String id) {
         // Si apre una socket verso il database, si ottiene il contatto con
         // l'ID specificato.
 
-        /*
-        if (contact == null)
-            return Response.status(Response.Status.NOT_FOUND).build();
+        Reservation result = new Reservation();
+        boolean flag = false;
 
-        return Response.ok(contact).build();
-        */
+    	try {
+    		socketDB = new Socket("localhost", DB_PORT);
+    		System.out.println("Connected");
+    		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
+    		var in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
 
-        Reservation result = reservations.get(id);
-        if(result != null)
+
+    		out.println(READ_ID_COMMAND + TRANSM_DEL + id);
+    		out.println(".");
+    		out.flush();
+
+            String inputLine;
+
+            while ((inputLine = in.readLine()) != null) {
+            	System.out.println("Read: " + inputLine);
+                String[] splitObjects = inputLine.split(TRANSM_DEL);
+                String s = splitObjects[0];
+                if(s.trim() != ""){
+                    if(result.Deserialize(s))
+                        flag = true;
+                }
+                if (".".equals(inputLine)) {
+                    break;
+                }
+            }
+
+            in.close();
+            out.close();
+            socketDB.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+            return Response.serverError().build();
+		}
+
+        if(flag == true)
             return Response.ok(result).build();
         else
             return Response.status(Response.Status.NOT_FOUND).build();
+
     }
 
     /**
@@ -80,39 +159,90 @@ public class ReservationResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response PostReservation(String body) {
-        var contact = new Reservation();
+
+        var reservation = new Reservation();
         System.out.println("POST");
-
-        try {
-            var mapper = new ObjectMapper();
-            contact = mapper.readValue(body, Reservation.class);
-
-            // Il nome e il numero ci devono essere.
-            System.out.println(contact.anyUnset());
-            if (contact.anyUnset())
-                return Response.status(Response.Status.BAD_REQUEST).build();
-
-        } catch (JsonParseException | JsonMappingException e) {
-            System.out.println(e);
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        } catch (IOException e) {
-            System.out.println(e);
-            return Response.serverError().build();
-        }
-
         // Si apre una socket verso il database, si ottiene un nuovo ID, lo si
         // applica al contatto e lo si aggiunge.
-        int newid = Collections.max(reservations.keySet())+1;
-        reservations.put(Collections.max(reservations.keySet())+1, contact);
 
+        PrintWriter out;
+        BufferedReader in;
         try {
-            var uri = new URI("/reservation/" + newid);
+            socketDB = new Socket("localhost", DB_PORT);
+            System.out.println("Connected");
+            out = new PrintWriter(socketDB.getOutputStream());
+            in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
 
-            return Response.created(uri).build();
-        } catch (URISyntaxException e) {
+    		out.println("GEN-KEY");
+    		out.println(".");
+    		out.flush();
+
+
+            String inputLine;
+            String key = "";
+            while ((inputLine = in.readLine()) != null) {
+            	if (key.equals("")) {
+            		key = inputLine;
+            	}
+            	System.out.println("Read: " + inputLine);
+                if (".".equals(inputLine)) {
+                    break;
+                }
+            }
+    		in.close();
+            out.close();
+            socketDB.close();
+
+    		socketDB = new Socket("localhost", DB_PORT);
+    		System.out.println("Connected");
+    		out = new PrintWriter(socketDB.getOutputStream());
+    		in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
+
+            var mapper = new ObjectMapper();
+            reservation = mapper.readValue(body, Reservation.class);
+
+            // Il nome e il numero ci devono essere.
+            System.out.println(reservation.anyUnset());
+            if (reservation.anyUnset())
+                return Response.status(Response.Status.BAD_REQUEST).build();
+
+            out.println("WRITE-KEY-VALUE" + TRANSM_DEL + key + TRANSM_DEL + reservation.Serialize());
+            out.println(".");
+            out.flush();
+
+            while ((inputLine = in.readLine()) != null) {
+            	System.out.println("Read-Response: " + inputLine);
+
+                if(inputLine.equals("ERROR")){
+                    throw new Exception();
+                }
+
+                if (".".equals(inputLine)) {
+                    out.println("bye");
+                    break;
+                }
+            }
+
+            in.close();
+            out.close();
+            socketDB.close();
+
+            try {
+                var uri = new URI("/reservations/" + key);
+
+                return Response.created(uri).build();
+            } catch (URISyntaxException e) {
+                System.out.println(e);
+                return Response.serverError().build();
+            }
+
+		} catch (JsonParseException | JsonMappingException e) {
+            System.out.println(e);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (Exception e) {
             System.out.println(e);
             return Response.serverError().build();
         }
-    }
 
+    }
 }

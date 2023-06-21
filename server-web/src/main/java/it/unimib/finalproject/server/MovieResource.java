@@ -13,15 +13,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.io.*;
 import java.net.*;
 
-@Path("screening")
-public class ScreeningResource {
+@Path("movie")
+public class MovieResource {
 
 	public static final String READ_TYPE_COMMAND = "READ-VALUE-IF-CONTAINS";
 	public static final String READ_ID_COMMAND = "READ-VALUE";
 	public static final String WRITE_VALUE_COMMAND = "WRITE-VALUE";
 	public static final String WRITE_KEY_VALUE_COMMAND = "WRITE-KEY-VALUE";
 	public static final String GEN_KEY_COMMAND = "GEN-KEY";
-	public static final String TYPE = "Screening";
+	public static final String TYPE = "Movie";
 	public static final String TRANSM_DEL = "%";
 	public static final String SEP_DEL = ":";
 
@@ -44,11 +44,11 @@ public class ScreeningResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getScreening() {
+    public Response getMovie() {
         // Si apre una socket verso il database, si ottengono i dati e si
         // costruisce la risposta.
 
-        List<Screening> result = new ArrayList<Screening>();
+        List<Movie> result = new ArrayList<Movie>();
 
     	try {
     		socketDB = new Socket("localhost", DB_PORT);
@@ -67,7 +67,7 @@ public class ScreeningResource {
                 String[] splitObjects = inputLine.split(TRANSM_DEL);
                 for(String s : splitObjects){
                     if(s.trim() != ""){
-                        Screening temp = new Screening();
+                        Movie temp = new Movie();
                         if(temp.Deserialize(s))
                             result.add(temp);
                     }
@@ -97,11 +97,11 @@ public class ScreeningResource {
     @Path("/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getScreening(@PathParam("id") String id) {
+    public Response getMovie(@PathParam("id") String id) {
         // Si apre una socket verso il database, si ottiene il contatto con
         // l'ID specificato.
 
-        Screening result = new Screening();
+        Movie result = new Movie();
         boolean flag = false;
 
     	try {
