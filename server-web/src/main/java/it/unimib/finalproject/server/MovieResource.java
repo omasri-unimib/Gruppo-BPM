@@ -92,7 +92,7 @@ public class MovieResource {
 
 
     /**
-     * Implementazione di GET "/halls/{id}".
+     * Implementazione di GET "/movie/{id}".
      */
     @Path("/{id}")
     @GET

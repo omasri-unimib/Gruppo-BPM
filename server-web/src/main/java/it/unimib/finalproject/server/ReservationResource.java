@@ -52,7 +52,6 @@ public class ReservationResource {
         // costruisce la risposta.
         List<Reservation> result = new ArrayList<Reservation>();
 
-
         try {
     		socketDB = new Socket("localhost", DB_PORT);
     		System.out.println("Connected");
@@ -91,6 +90,8 @@ public class ReservationResource {
             return Response.serverError().build();
 		}
 
+        System.out.println(date);
+
         result.removeIf(x -> (screening != null && !screening.equals(x.getScreening())));
         result.removeIf(x -> (date != null && !date.equals(x.getStringDate())));
         result.removeIf(x -> (time != null && !time.equals(x.getStringTime())));
@@ -99,7 +100,7 @@ public class ReservationResource {
     }
 
     /**
-     * Implementazione di GET "/halls/{id}".
+     * Implementazione di GET "/reservation/{id}".
      */
     @Path("/{id}")
     @GET

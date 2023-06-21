@@ -40,7 +40,7 @@ public class ScreeningResource {
 
 
     /**
-     * Implementazione di GET "/movie".
+     * Implementazione di GET "/screening".
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -92,7 +92,7 @@ public class ScreeningResource {
 
 
     /**
-     * Implementazione di GET "/halls/{id}".
+     * Implementazione di GET "/screening/{id}".
      */
     @Path("/{id}")
     @GET
