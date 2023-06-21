@@ -1,5 +1,53 @@
 # Progetto Sistemi Distribuiti 2022-2023 - TCP
 
-Documentazione del protoccolo socket su TCP. Si suggerisce di seguire il protocollo di Redis (https://redis.io/docs/reference/protocol-spec/), perché è molto semplice sia da comprendere sia da implementare. Non è necessario prendere tutti i punti, basta quello necessario per l'invio della richiesta e della risposta.
+# TCP Protocol (Database)
+## Commands
 
-La documentazione può variare molto in base al tipo di protocollo che si vuole costruire. Se come Redis, è un protocollo di richieste e risposte, per cui è necessario indicare come inviare la richiesta (comando e dati) e la risposta. Si può anche utilizzare JSON al posto delle semplici stringhe, in tal caso andranno specificati bene la struttura degli oggetti scambiati tra client e server.
+#### READ-VALUE
+	READ-VALUE%<key>
+    Response:
+     - DONE%<key>:<value>
+     - ERROR
+     
+    Example: READ-VALUE%123
+
+#### READ-VALUE-IF-CONTAINS
+	READ-VALUE-IF-CONTAINS%<string to search>#<start position>
+    Response:
+     - DONE%<key 1>:<value 1>%...%<key N>:<value N>
+     - ERROR
+
+    Example: 	READ-VALUE-IF-CONTAINS%FILM%3
+
+#### WRITE-VALUE
+    WRITE-VALUE#<value>
+	Responses: 
+	 - CREATED 
+	 - OVERWRITTEN
+	 - ERROR
+     
+    Example: WRITE-VALUE%SomeValue
+
+#### WRITE-KEY-VALUE
+	WRITE-KEY-VALUE%<key>%<value>
+	Responses: 
+	 - CREATED 
+	 - OVERWRITTEN
+	 - ERROR
+     
+    Example: WRITE-KEY-VALUE%123%SomeValue
+
+#### GEN-KEY
+	GEN-KEY
+    Response: 
+     - <key>
+     - ERROR
+     
+    Example: GEN-KEY
+    
+    
+# Proposta Formato Dati nel Database (NON COMPLETO!)
+Esempio:
+Reservation nel DB: <ArrayLength>#<RES>#<Screening Id>#<Seat 1 Id># ... #<Seat(ArrayLength -2) Id>
+Reservation trasmesso: <ArrayLength>#<RES>#<Screening Id>#<Seat 1 Id># ... #<Seat(ArrayLength -2) Id>#id
+
