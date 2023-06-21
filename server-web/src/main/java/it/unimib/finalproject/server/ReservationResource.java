@@ -13,26 +13,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.io.*;
 import java.net.*;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 
 @Path("reservation")
 public class ReservationResource {
 
-    public static List<Reservation> reservations
-        = new ArrayList<Reservation>(
-            Arrays.asList(new Reservation(1, "Omar", "Masri", "S1", 1, LocalDate.now().toString(), LocalTime.now().toString()),
-                          new Reservation(2,"Besugo","Sassi","S1",2, LocalDate.now().plusDays(10).toString(), LocalTime.now().toString()),
-                          new Reservation(3,"Bes","ssi","S1",2, LocalDate.now().plusDays(1).toString(), LocalTime.now().toString()),
-                          new Reservation(4,"asdasdo","sssAssi","S1",3, LocalDate.now().toString(), LocalTime.now().toString())));
+    public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:m");
+
+    public static HashMap<Integer, Reservation> reservations
+        = new HashMap<Integer, Reservation>() {{
+            put(1, new Reservation("Omar", "Masri", "S1", 1, LocalDate.now().toString(), LocalTime.now().format(formatter)));
+            put(2, new Reservation("Besugo","Sassi","S1",2, LocalDate.now().plusDays(10).toString(), LocalTime.now().format(formatter)));
+            put(3, new Reservation("Bes","ssi","S1",2, LocalDate.now().plusDays(1).toString(), LocalTime.now().format(formatter)));
+            put(4, new Reservation("asdasdo","sssAssi","S2",3, LocalDate.now().toString(), LocalTime.now().format(formatter)));
+            put(5, new Reservation("Cristopher","benedux","S2",3, LocalDate.now().toString(), LocalTime.now().format(formatter)));
+        }};
 
     /**
-     * Implementazione di GET "/reservation".
+     * Implementazione  di GET "/reservation".
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getReservation(@QueryParam("hall") String hall, @QueryParam("date") String date, @QueryParam("time") String time) {
         // Si apre una socket verso il database, si ottengono i dati e si
         // costruisce la risposta.
-        List<Reservation> result = new ArrayList<Reservation>(reservations);
+        List<Reservation> result = new ArrayList<Reservation>(reservations.values());
         System.out.println("1 "+LocalDate.now() + " " + hall + " " + date + " " + time);
 
         result.removeIf(x -> (hall != null && !hall.equals(x.getHall())));
@@ -46,26 +51,12 @@ public class ReservationResource {
     }
 
     /**
-     * Implementazione di GET "/reservation/hall/{hall}".
-     */
-    @Path("/hall/{hall}")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getContacts(@PathParam("hall") int hall) {
-        // Si apre una socket verso il database, si ottengono i dati e si
-        // costruisce la risposta.
-        System.out.println("2");
-        String prova = "hall"+hall;
-        return Response.ok(prova).build();
-    }
-
-    /**
-     * Implementazione di GET "/contacts/{id}".
+     * Implementazione di GET "/reservation/{id}".
      */
     @Path("/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getContact(@PathParam("id") int id) {
+    public Response getReservation(@PathParam("id") int id) {
         // Si apre una socket verso il database, si ottiene il contatto con
         // l'ID specificato.
 
@@ -75,23 +66,30 @@ public class ReservationResource {
 
         return Response.ok(contact).build();
         */
-        return Response.serverError().build();
+
+        Reservation result = reservations.get(id);
+        if(result != null)
+            return Response.ok(result).build();
+        else
+            return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     /**
-     * Implementazione di POST "/contacts".
+     * Implementazione di POST "/reservation".
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getContacts(String body) {
+    public Response PostReservation(String body) {
         var contact = new Reservation();
+        System.out.println("POST");
 
         try {
             var mapper = new ObjectMapper();
             contact = mapper.readValue(body, Reservation.class);
 
             // Il nome e il numero ci devono essere.
-            if (contact.getHall() == null || contact.getNameCustomer() == null)
+            System.out.println(contact.anyUnset());
+            if (contact.anyUnset())
                 return Response.status(Response.Status.BAD_REQUEST).build();
 
         } catch (JsonParseException | JsonMappingException e) {
@@ -104,9 +102,11 @@ public class ReservationResource {
 
         // Si apre una socket verso il database, si ottiene un nuovo ID, lo si
         // applica al contatto e lo si aggiunge.
+        int newid = Collections.max(reservations.keySet())+1;
+        reservations.put(Collections.max(reservations.keySet())+1, contact);
 
         try {
-            var uri = new URI("/contacts/" + contact.getId());
+            var uri = new URI("/reservation/" + newid);
 
             return Response.created(uri).build();
         } catch (URISyntaxException e) {
@@ -114,4 +114,5 @@ public class ReservationResource {
             return Response.serverError().build();
         }
     }
+
 }

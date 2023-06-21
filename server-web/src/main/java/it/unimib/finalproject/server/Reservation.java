@@ -1,14 +1,13 @@
 package it.unimib.finalproject.server;
 
+import java.util.Objects;
+import java.util.stream.*;
 import java.time.*;
 
 /**
  * Rappresenta una Prenotazione.
  */
 public class Reservation {
-    // Identificativo univoco della Prenotazione.
-    private int id;
-
     // Nome del Cliente associato alla Prenotazione.
     private String nameCustomer;
 
@@ -26,14 +25,6 @@ public class Reservation {
 
     // ora associata alla prenotazione
     private String time;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getNameCustomer() {
         return nameCustomer;
@@ -83,13 +74,21 @@ public class Reservation {
         this.time = time;
     }
 
-    public Reservation(int id, String nameCustomer, String surnameCustomer, String hall, int position, String date, String time){
-        this.id = id;
+    public Reservation(String nameCustomer, String surnameCustomer, String hall, int position, String date, String time){
         this.nameCustomer = nameCustomer;
         this.surnameCustomer = surnameCustomer;
         this.hall = hall;
         this.position = position;
         this.date = date;
         this.time = time;
+    }
+
+    public Reservation(){
+
+    }
+
+    public boolean anyUnset(){
+        return !Stream.of(nameCustomer, surnameCustomer, hall, position, date, time)
+            .allMatch(Objects::nonNull);
     }
 }
