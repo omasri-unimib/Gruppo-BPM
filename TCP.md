@@ -6,7 +6,7 @@
 #### READ-VALUE
 	READ-VALUE%<key>
     Response:
-     - DONE%<key>:<value>
+     - <key>:<value>
      - NOT-FOUND
      
     Example: READ-VALUE%123
@@ -14,7 +14,7 @@
 #### READ-VALUE-IF-CONTAINS
 	READ-VALUE-IF-CONTAINS%<string to search>#<start position>
     Response:
-     - DONE%<key 1>:<value 1>%...%<key N>:<value N>
+     - <key 1>:<value 1>%...%<key N>:<value N>
      - NOT-FOUND
 
     Example: READ-VALUE-IF-CONTAINS%FILM%3
@@ -39,7 +39,6 @@
 	GEN-KEY
     Response: 
      - <key>
-     - ERROR
      
     Example: GEN-KEY
     
