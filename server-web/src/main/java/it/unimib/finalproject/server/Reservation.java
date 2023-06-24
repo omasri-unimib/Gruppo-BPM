@@ -26,10 +26,6 @@ public class Reservation {
     // ora associata alla prenotazione
     private LocalTime time;
 
-    private String stringDate;
-
-    private String stringTime;
-
     // posizione nella sala associata alla prenotazione.
     private List<String> positions;
 
@@ -59,22 +55,6 @@ public class Reservation {
         this.surnameCustomer = surnameCustomer;
     }
 
-    public String getStringDate() {
-        return stringDate;
-    }
-
-    public void setStringDate(String stringDate) {
-        this.stringDate = stringDate;
-    }
-
-    public String getStringTime() {
-        return stringTime;
-    }
-
-    public void setStringTime(String stringTime) {
-        this.stringTime = stringTime;
-    }
-
     public List<String> getPositions() {
         return positions;
     }
@@ -85,6 +65,22 @@ public class Reservation {
 
     public void setScreening(String screening) {
         this.screening = screening;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public LocalTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
     }
 
     public void addPosition(String position) {
@@ -112,11 +108,9 @@ public class Reservation {
                     screening = splitParams[i]; break;
                 case 4:
                     date = LocalDate.parse(splitParams[i], ReservationResource.formatterDate);
-                    stringDate = splitParams[i];
                     break;
                 case 5:
                     time = LocalTime.parse(splitParams[i], ReservationResource.formatterTime);
-                    stringTime = splitParams[i];
                     break;
                 default:
                     addPosition(splitParams[i]);
@@ -131,8 +125,8 @@ public class Reservation {
         if(!anyUnset()){
             return this.getClass().getSimpleName() + "#" +
                 nameCustomer + "#" + surnameCustomer + "#" + screening + "#" +
-                stringDate + "#" +
-                stringTime + "#" +
+                date.format(ReservationResource.formatterDate) + "#" +
+                time.format(ReservationResource.formatterDate) + "#" +
                 String.join("#", positions);
         }
         return "";
