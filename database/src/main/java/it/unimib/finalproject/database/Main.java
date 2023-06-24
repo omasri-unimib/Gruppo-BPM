@@ -31,7 +31,7 @@ public class Main {
 	public static final int TYPE_OFFSET_VALUE = 3; 
 	
     public static final int PORT = 8081;
-    private static List<Pair> db;
+    private static HashMap<String, String> db;
 
 
 
@@ -42,17 +42,21 @@ public class Main {
      */
     public static void startServer() {
     	
+    	
     	System.out.println("Path: " + Paths.get(".").toAbsolutePath().normalize().toString());
     	
-    	db = new ArrayList<Pair>();
+    	db = new HashMap<String, String>();
+    	
+    	
     	
     	try {
     		String s = Files.readString(Paths.get("data.csv"));
     		String[] records = s.split(EOL);
     		for(int i = 0; i < records.length; i++) {
     			System.out.println(records[i]);
-    			db.add(new Pair(records[i].split(",")[0], records[i].split(",")[1])); 
+    			db.put(records[i].split(",")[0], records[i].split(",")[1]); 
     		}
+    		
     	}
     	catch(Exception e) {
     		e.printStackTrace();
@@ -141,7 +145,6 @@ public class Main {
                 		out.println("Command Not Recognized");
                         System.out.println("Written");
                 		break;
-                	
                 }
 
                 in.close();
@@ -168,13 +171,14 @@ public class Main {
         startServer();
     }
 
-    public static String readAllContaining(List<Pair> db, String content, int pos) {
+    public static String readAllContaining(HashMap<String, String> db, String content, int pos) {
     	String s = "";
+    	String[] keys = (String [])db.keySet().toArray();
     	for(int i = 0; i < db.size(); i++) {
-    		String k = db.get(i).getKey();
-    		String v = db.get(i).getValue();
+    		String k = keys[i];
+    		String v = db.get(k);
     		if(v.length() > pos + content.length() && 
-               v.startsWith(content, pos) /*v.split("#")[1].equals(type)*/) {
+               v.startsWith(content, pos)) {
     			if(s.equals("")) {
     				s += k + SEP_DEL + v;
     			}
@@ -187,77 +191,34 @@ public class Main {
     	return s;
     }
     
-    public static String readByKey(List<Pair> db, String key) {
-    	for(int i = 0; i < db.size(); i++) {
-    		String k = db.get(i).getKey();
-    		if(k.equals(key)) {
-    			System.out.println("Found");
-				return k + SEP_DEL + db.get(i).getValue();
-    		}
-    	}
-    	return "";
+    public static String readByKey(HashMap<String, String> db, String key) {
+    	String v = db.get(key);
+    	
+    	return (v != null) ? key + SEP_DEL + v : "NOT-FOUND";
     }
     
-    public static String generateKey(List<Pair> db) {
-    	String max = (db.size() == 0) ? "\t" : db.get(0).getKey();
+    public static String generateKey(HashMap<String, String> db) {
+
+    	String max = (db.size() == 0) ? "\t" : db.keySet().toArray()[0].toString();
     	for (int i = 0; i < db.size(); i ++) {
-    		String val = db.get(i).getKey();
+    		String val = db.keySet().toArray()[i].toString();
 			if (val.compareTo(max) >= 0) {
 				max = val;
 			}
 		}
-    	
     	return "" + (max + 1);
     }
     
-    public static String writeKeyValue(List<Pair> db, String key, String value) {
-    	String search = readByKey(db, key);
-    	if (search.equals("")) {
-    		db.add(new Pair(key, value));
-    		return "CREATED";
+    public static String writeKeyValue(HashMap<String, String> db, String key, String value) {
+    	if (!db.containsKey(key)) {
+    		db.put(key, value);
+    		return "CREATED" + TRANSM_DEL  + key;
     	}
     	else {
-    		for (int i = 0; i < db.size(); i ++) {
-        		if (db.get(i).getKey().equals(key)) {
-        			db.remove(i);
-        			db.add(new Pair(key, value));
-            		return "OVERWRITTEN";
-        		}
-    		}
+    		db.remove(key);
+    		db.put(key, value);
+    		return "OVERWRITTEN" + TRANSM_DEL  + key;
     	}
-    	return "ERROR";
     }
-}
-
-
-class Pair{
-	private String key;
-	private String value;
-	
-	public Pair(String key, String value) {
-		this.key = key;
-		this.value = value;
-	}
-	
-	public void setKey(String key) {
-		this.key = key;
-	}
-	
-	public void setValue(String value) {
-		this.value = value;
-	}
-	
-	public String getKey() {
-		return this.key;
-	}
-	
-	public String getValue() {
-		return this.value;
-	}
-	
-	@Override
-	public String toString() {
-		return this.key + "," + this.value;
-	}
 }
 

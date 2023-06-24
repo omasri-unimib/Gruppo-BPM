@@ -6,34 +6,32 @@
 #### READ-VALUE
 	READ-VALUE%<key>
     Response:
-     - DONE%<key>:<value>
-     - ERROR
+     - <key>:<value>
+     - NOT-FOUND
      
     Example: READ-VALUE%123
 
 #### READ-VALUE-IF-CONTAINS
 	READ-VALUE-IF-CONTAINS%<string to search>#<start position>
     Response:
-     - DONE%<key 1>:<value 1>%...%<key N>:<value N>
-     - ERROR
+     - <key 1>:<value 1>%...%<key N>:<value N>
+     - NOT-FOUND
 
-    Example: 	READ-VALUE-IF-CONTAINS%FILM%3
+    Example: READ-VALUE-IF-CONTAINS%FILM%3
 
 #### WRITE-VALUE
-    WRITE-VALUE#<value>
+    WRITE-VALUE%<value>
 	Responses: 
-	 - CREATED 
-	 - OVERWRITTEN
-	 - ERROR
+	 - CREATED%<key> 
+	 - OVERWRITTEN%<key>
      
     Example: WRITE-VALUE%SomeValue
 
 #### WRITE-KEY-VALUE
 	WRITE-KEY-VALUE%<key>%<value>
 	Responses: 
-	 - CREATED 
-	 - OVERWRITTEN
-	 - ERROR
+	 - CREATED%<key> 
+	 - OVERWRITTEN%<key>
      
     Example: WRITE-KEY-VALUE%123%SomeValue
 
@@ -41,7 +39,6 @@
 	GEN-KEY
     Response: 
      - <key>
-     - ERROR
      
     Example: GEN-KEY
     
