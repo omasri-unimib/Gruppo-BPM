@@ -11,6 +11,8 @@
      
     Example: READ-VALUE%123
 
+
+
 #### READ-VALUE-IF-CONTAINS
 	READ-VALUE-IF-CONTAINS%<string to search>#<start position>
     Response:
@@ -18,6 +20,20 @@
      - NOT-FOUND
 
     Example: READ-VALUE-IF-CONTAINS%FILM%3
+
+
+
+
+#### READ-VALUE-QUERY
+	READ-VALUE-QUERY%<delimiter>%<position>%<EQ | LT | GT>%<value>{%<position>%<EQ | LT | GT>%<value>}
+    Response:
+     - <key 1>:<value 1>%...%<key N>:<value N>
+     - NOT-FOUND
+     - ERROR      - Query syntax is wrong
+
+    Example: READ-VALUE-QUERY%#%123%GT%SomeString
+
+
 
 #### WRITE-VALUE
     WRITE-VALUE%<value>
@@ -27,6 +43,8 @@
      
     Example: WRITE-VALUE%SomeValue
 
+
+
 #### WRITE-KEY-VALUE
 	WRITE-KEY-VALUE%<key>%<value>
 	Responses: 
@@ -34,6 +52,8 @@
 	 - OVERWRITTEN%<key>
      
     Example: WRITE-KEY-VALUE%123%SomeValue
+
+
 
 #### GEN-KEY
 	GEN-KEY
