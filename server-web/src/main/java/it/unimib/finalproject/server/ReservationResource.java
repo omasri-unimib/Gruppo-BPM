@@ -90,11 +90,9 @@ public class ReservationResource {
             return Response.serverError().build();
 		}
 
-        System.out.println(date);
-
         result.removeIf(x -> (screening != null && !screening.equals(x.getScreening())));
-        result.removeIf(x -> (date != null && !date.equals(x.getStringDate())));
-        result.removeIf(x -> (time != null && !time.equals(x.getStringTime())));
+        result.removeIf(x -> (date != null && !LocalDate.parse(date, formatterDate).equals(x.getDate())));
+        result.removeIf(x -> (time != null && !LocalTime.parse(time, formatterTime).equals(x.getTime())));
 
         return Response.ok(result).build();
     }
