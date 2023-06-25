@@ -1,94 +1,154 @@
-# Esempio
-
-Documentazione delle API REST di esempio. Si assume che i dati vengano scambiati in formato JSON.
-
-## `/contacts`
-
-Ogni risorsa ha la sua sezione. In questo caso la risorsa da documentare è quella dei contatti.
-
-### GET
-
-**Descrizione**: una breve descrizione di cosa fa il metodo applicato alla risorsa. In questo caso restituisce l'elenco dei contatti salvati.
-
-**Parametri**: un elenco dei parametri se previsti, sia nel percorso (esempio `/contacts/{id}`) che nella richiesta (esempio `/contacts?id={id}`) o anche negli header. In questo caso non sono previsti.
-
-**Body richiesta**: cosa ci deve essere nel body della richiesta. In questo caso nulla perché è una GET.
-
-**Risposta**: cosa viene restituito in caso di successo. In questo caso viene restituito la rappresentazione in JSON del contatto, un oggetto JSON con i campi `id` (un intero), `name` e `number` (due stringhe).
-
-**Codici di stato restituiti**: elenco dei codici di stato, se necessario dettagliare e non elencare quelli già previsti da Jackarta in automatico. In questo caso c'è solo lo stato `200 OK` da segnalare:
-
-
-
 # Progetto Sistemi Distribuiti 2022-2023 - API REST
 
 Documentazione delle API REST di esempio. Si assume che i dati vengano scambiati in formato JSON.
 
-## Prenotazioni DA FARE
+## Prenotazioni
 
-### `/reservation` 
+## `/reservation` 
 
-#### GET
+### GET
 
 **Descrizione**: Restituisce l'elenco delle Prenotazioni
 
 **Parametri**: Sono previsiti 3 parametri 
 
-- `/reservation?screening={idScreening}` filtra per tutte le Prenotazioni relative ad una Proiezione.
-  - E.G. /reservation?screening=id
-- `/reservation?date={data}` filtra per tutte le Prenotazioni per data.
+- `/reservation?screening={idScreening}` filtra per tutte le Prenotazioni relative ad una Proiezione identificata da idScreening.
+  - E.G. /reservation?screening=1
+- `/reservation?date={data: yyyy-MM-dd}` filtra per tutte le Prenotazioni la cui data e' maggiore di quella inserita per parametro.
   - E.G. /reservation?date=2023-10-01
-- `/reservation?time={tempo}` filtra per tutte le Prenotazioni per ora e secondi.
-  - E.G. /reservation?date=09:33
-
+- `/reservation?time={tempo: HH:mm:ss}` filtra per tutte le Prenotazioni le cui ore e secondi sono maggiori di quelli inseriti per prametro.
+  - E.G. /reservation?time=09:33:00
 
 **Body richiesta**: nulla
 
-**Risposta**: viene restituita la rappresentazione in JSON della Prenotazione, un oggetto JSON con i campi `id` (un intero), `name` e `number` (due stringhe).
+**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una lista di Prenotazioni,dove l'oggetto Prenotazione e' un oggetto JSON del tipo:
 
-**Codici di stato restituiti**: elenco dei codici di stato, se necessario dettagliare e non elencare quelli già previsti da Jackarta in automatico. In questo caso c'è solo lo stato `200 OK` da segnalare:
+E.G.)
+
+```json
+[
+    {
+          "id": "1",
+          "nameCustomer": "Name",
+          "surnameCustomer": "surname",
+          "screening": "1",
+          "date": "2023-10-01",
+          "time": "09:33:00",
+          "positions": [
+              "A1",
+              "B2"
+          ]
+    },
+    ...
+]
+```
+
+**Codici di stato restituiti**:
 
 * 200 OK
+* 400 Bad Request (parametri non validi)
+* 500 Internal Server Error
 
 ### POST
 
-**Descrizione**: aggiunge un contatto alla rubrica telefonica.
+**Descrizione**: Aggiunge una Prenotazione 
 
 **Parametri**: ci deve essere l'header `Content-Type: application/json`.
 
-**Body richiesta**: rappresentazione in formato JSON del contatto con i campi `name` e `number` che sono due stringhe.
+**Body richiesta**: rappresentazione in formato JSON della Prenotazione:
+
+```json
+{
+        "nameCustomer": "Name",
+        "surnameCustomer": "surname",
+        "screening": "1",
+        "date": "2023-10-01",
+        "time": "09:33:00",
+        "positions": [
+            "A1",
+            "B2"
+        ]
+}
+```
 
 **Risposta**: in caso di successo il body è vuoto e la risorsa creata è indicata nell'header `Location`.
 
 **Codici di stato restituiti**:
 
 * 201 Created
-* 400 Bad Request: c'è un errore del client (JSON, campo mancante o altro).
+* 400 Bad Request (JSON non valido)
+* 500 Internal Server Error
 
-## `/contacts/{id}`
+### PUT
 
-### GET
+**Descrizione**: Fa una Update (con eventual upsert) di una Prenotazione identificata da un id
 
-**Descrizione**: restituisce il contatto con l'id fornito.
+**Parametri**: ci deve essere l'header `Content-Type: application/json`.
 
-**Parametri**: un parametro nel percorso `id` che rappresenta l'identificativo del contatto da restituire.
+**Body richiesta**: rappresentazione in formato JSON della Prenotazione: (il body deve contenere l'id della Prenotazione da modificare)
 
-**Body richiesta**: vuoto.
+```json
+{
+        "id": "1"
+        "nameCustomer": "Name",
+        "surnameCustomer": "surname",
+        "screening": "1",
+        "date": "2023-10-01",
+        "time": "09:33:00",
+        "positions": [
+            "A1",
+            "B2"
+        ]
+}
+```
 
-**Risposta**: In caso di successo viene restituita la rappresentazione in JSON del contatto, un oggetto JSON con i campi `id` (un intero), `name` e `number` (due stringhe).
+**Risposta**: Se esiste una Prenotazione identificata dal id mandato, viene modificata la prenotazione e non viene restituito nulla nel body. 
+In caso non esiste una Prenotazione identificata dal id viene creata una nuova Prenotazione (upsert), il body è vuoto e la risorsa creata è indicata nell'header `Location`.
 
 **Codici di stato restituiti**:
 
-* 200 OK
-* 400 Bad Request: c'è un errore del client (ID non valido).
-* 404 Not Found: contatto non trovato.
+* 201 Created (Upsert)
+* 201 No Content (Modificato)
+* 400 Bad Request (JSON non valido)
+* 500 Internal Server Error
 
+## `/reservation/{id}`
+
+### GET
+
+**Descrizione**: restituisce la Prenotazione con l'id fornito.
+
+**Parametri**: un path paramteter `id` che rappresenta l'identificativo della Prenotazione da restituire.
+
+**Body richiesta**: vuoto.
+
+**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una Prenotazione, dove l'oggetto Prenotazione e' un oggetto JSON del tipo:
+
+```json
+{
+        "id": "{id}",
+        "nameCustomer": "Name",
+        "surnameCustomer": "surname",
+        "screening": "1",
+        "date": "2023-10-01",
+        "time": "09:33:00",
+        "positions": [
+            "A1",
+            "B2"
+        ]
+}
+```
+**Codici di stato restituiti**:
+
+* 200 OK
+* 404 Not Found (Prenotazione non trovata)
+* 500 Internal Server Error
 
 ## Proiezione
 
-### `/screening`
+## `/screening`
 
-#### GET
+### GET
 
 **Descrizione**: Restituisce l'elenco di tutte le Proiezioni.
 
@@ -98,16 +158,29 @@ Documentazione delle API REST di esempio. Si assume che i dati vengano scambiati
 
 **Body richiesta**: Vuoto.
 
-**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una lista di Proiezioni, dove l'oggetto Proiezione e' un oggetto JSON con i campi `id`, `idScreening` e `idMovie` (stringhe), `date` (date-da-sistemare), `time` (time-da-sistemare).
+**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una lista di Proiezioni, dove l'oggetto Proiezione e' un oggetto JSON del tipo:
+
+```json
+[
+    {
+        "id": "1",
+        "idScreening": "S1",
+        "idMovie": "1",
+        "date": "2023-10-29",
+        "time": "22:00:00"
+    },
+    ...
+]
+```
 
 **Codici di stato restituiti**:
 
 * 200 OK
 * 500 500 Internal Server Error
 
-### `/screening/{id}`
+## `/screening/{id}`
 
-#### GET
+### GET
 
 **Descrizione**: Restituisce la Sala indentificata da `{id}` 
 
@@ -117,7 +190,17 @@ Documentazione delle API REST di esempio. Si assume che i dati vengano scambiati
 
 **Body richiesta**: Vuoto.
 
-**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una Proiezione, un oggetto JSON con i campi `id`, `idScreening` e `idMovie` (stringhe), `date` (date-da-sistemare), `time` (time-da-sistemare).
+**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una Proiezione, un oggetto JSON del tipo:
+
+```json
+{
+    "id": "{id}",
+    "idScreening": "S1",
+    "idMovie": "1",
+    "date": "2023-10-29",
+    "time": "22:00:00"
+}
+```
 
 **Codici di stato restituiti**:
 
@@ -128,9 +211,9 @@ Documentazione delle API REST di esempio. Si assume che i dati vengano scambiati
 
 ## Sala
 
-### `/hall`
+## `/hall`
 
-#### GET
+### GET
 
 **Descrizione**: Restituisce l'elenco di tutte le Sale.
 
@@ -140,16 +223,29 @@ Documentazione delle API REST di esempio. Si assume che i dati vengano scambiati
 
 **Body richiesta**: Vuoto.
 
-**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una lista di Sale, dove l'oggetto Sala e' un oggetto JSON con i campi `floor`, `postiColonna` (interi), `id`, `name` e `postiRiga` (stringhe).
+**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una lista di Sale, dove l'oggetto Sala e' un oggetto JSON del tipo:
+
+```json
+[
+    {
+        "id": "S1",
+        "name": "Sala 1",
+        "floor": 1,
+        "postiRiga": "D",
+        "postiColonna": 20
+    },
+    ...
+]
+```
 
 **Codici di stato restituiti**:
 
 * 200 OK
 * 500 500 Internal Server Error
 
-### `/hall/{id}`
+## `/hall/{id}`
 
-#### GET
+### GET
 
 **Descrizione**: Restituisce la Sala indentificata da `{id}` 
 
@@ -159,7 +255,17 @@ Documentazione delle API REST di esempio. Si assume che i dati vengano scambiati
 
 **Body richiesta**: Vuoto.
 
-**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una Sala, un oggetto JSON con i campi `floor`, `postiColonna` (interi), `id`, `name` e `postiRiga` (stringhe).
+**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una Sala, un oggetto JSON del tipo:
+
+```json
+{
+    "id": "{id}",
+    "name": "Sala 1",
+    "floor": 1,
+    "postiRiga": "D",
+    "postiColonna": 20
+},
+```
 
 **Codici di stato restituiti**:
 
@@ -169,9 +275,9 @@ Documentazione delle API REST di esempio. Si assume che i dati vengano scambiati
 
 ## Film
 
-### `/movie`
+## `/movie`
 
-#### GET
+### GET
 
 **Descrizione**: Restituisce l'elenco di tutti i Film.
 
@@ -181,16 +287,30 @@ Documentazione delle API REST di esempio. Si assume che i dati vengano scambiati
 
 **Body richiesta**: Vuoto.
 
-**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una lista di Film, dove l'oggetto Film e' un oggetto JSON con i campi `duration` (double) (in ore e minuti da convertire in sessagesimale), `id`, `name`, `genre`, `director` (stringhe) releaseDate (date-da-sistemare).
+**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una lista di Film, dove l'oggetto Film e' un oggetto JSON del tipo:
+
+```json
+[
+    {
+        "id": "1",
+        "name": "Science fiction",
+        "genre": "Interstellar",
+        "director": "Christopher Nolan",
+        "duration": 2.0,
+        "releaseDate": "2014-10-26"
+    },
+    ...
+]
+```
 
 **Codici di stato restituiti**:
 
 * 200 OK
 * 500 500 Internal Server Error
 
-### `/movie/{id}`
+## `/movie/{id}`
 
-#### GET
+### GET
 
 **Descrizione**: Restituisce il Film indentificata da `{id}` 
 
@@ -200,7 +320,18 @@ Documentazione delle API REST di esempio. Si assume che i dati vengano scambiati
 
 **Body richiesta**: Vuoto.
 
-**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di un Film, un oggetto JSON con i campi `duration` (double) (in ore e minuti da convertire in sessagesimale), `id`, `name`, `genre`, `director` (stringhe) releaseDate (date-da-sistemare).
+**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di un Film, un oggetto JSON del tipo:
+
+```json
+{
+        "id": "{id}",
+        "name": "Science fiction",
+        "genre": "Interstellar",
+        "director": "Christopher Nolan",
+        "duration": 2.0,
+        "releaseDate": "2014-10-26"
+}
+```
 
 **Codici di stato restituiti**:
 

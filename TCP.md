@@ -23,9 +23,8 @@
 
 
 
-
 #### READ-VALUE-QUERY
-	READ-VALUE-QUERY%<delimiter>%<position>%<EQ | LT | GT>%<value>{%<position>%<EQ | LT | GT>%<value>}
+	READ-VALUE-QUERY%<delimiter>%<position>%<EQ | LT | GT | LTE | GTE>%<value>{%<position>%<EQ | LT | GT LTE | GTE>%<value>}
     Response:
      - <key 1>:<value 1>%...%<key N>:<value N>
      - NOT-FOUND

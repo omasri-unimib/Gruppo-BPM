@@ -3,6 +3,7 @@ package it.unimib.finalproject.server;
 import java.util.stream.*;
 import java.time.*;
 import java.util.*;
+import com.fasterxml.jackson.annotation.*;
 
 /**
  * Rappresenta una Prenotazione.
@@ -11,22 +12,28 @@ public class Reservation {
 
     private String id;
 
-    // Nome del Cliente associato alla Prenotazione.
+    //1
+    //Nome del Cliente associato alla Prenotazione.
     private String nameCustomer;
 
-    // Cognome del Cliente associato alla Prenotazione.
+    //2
+    //Cognome del Cliente associato alla Prenotazione.
     private String surnameCustomer;
 
-    // Sala associata alla Prenotazione.
+    //3
+    //Proiezione associata alla Prenotazione.
     private String screening;
 
-    // data associata alla prenotazione
-    private LocalDate date;
+    //4
+    //data associata alla prenotazione
+    private String date;
 
-    // ora associata alla prenotazione
-    private LocalTime time;
+    //5
+    //ora e minuti associata alla prenotazione
+    private String time;
 
-    // posizione nella sala associata alla prenotazione.
+    //6
+    //posizioni nella sala associati alla prenotazione.
     private List<String> positions;
 
 
@@ -67,19 +74,19 @@ public class Reservation {
         this.screening = screening;
     }
 
-    public LocalDate getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
-    public LocalTime getTime() {
+    public String getTime() {
         return time;
     }
 
-    public void setTime(LocalTime time) {
+    public void setTime(String time) {
         this.time = time;
     }
 
@@ -107,10 +114,10 @@ public class Reservation {
                 case 3:
                     screening = splitParams[i]; break;
                 case 4:
-                    date = LocalDate.parse(splitParams[i], ReservationResource.formatterDate);
+                    date = splitParams[i];
                     break;
                 case 5:
-                    time = LocalTime.parse(splitParams[i], ReservationResource.formatterTime);
+                    time = splitParams[i];
                     break;
                 default:
                     addPosition(splitParams[i]);
@@ -125,8 +132,8 @@ public class Reservation {
         if(!anyUnset()){
             return this.getClass().getSimpleName() + "#" +
                 nameCustomer + "#" + surnameCustomer + "#" + screening + "#" +
-                date.format(ReservationResource.formatterDate) + "#" +
-                time.format(ReservationResource.formatterDate) + "#" +
+                date + "#" +
+                time + "#" +
                 String.join("#", positions);
         }
         return "";
@@ -137,7 +144,7 @@ public class Reservation {
     }
 
     public boolean anyUnset(){
-        return !Stream.of(nameCustomer, surnameCustomer, screening, positions, stringDate, stringTime)
-            .allMatch(Objects::nonNull);
+        return !Stream.of(nameCustomer, surnameCustomer, screening, positions, date, time)
+            .allMatch(Objects::nonNull) && Protocol.dateIsValid(date) && Protocol.timeIsValid(time);
     }
 }

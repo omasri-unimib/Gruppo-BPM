@@ -15,7 +15,8 @@ public class Main {
      * Porta di ascolto.
      */
 
-    public static final String EOL = System.getProperty("os.name").startsWith("Windows") ? "\r\n" : "\n";
+    // \r\n on Windows and \n on UNIX
+    public static final String EOL = System.lineSeparator();
 	public static final String TRANSM_DEL = "%";
 	public static final String SEP_DEL = ":";
 	
@@ -27,7 +28,6 @@ public class Main {
 	
     public static final int PORT = 8081;
     private static HashMap<String, String> db;
-
 
 
     /**
@@ -106,7 +106,6 @@ public class Main {
 
                 switch(rcv.split(TRANSM_DEL)[0]) {
                 
-                
                 	case "READ-VALUE-QUERY":
 					out.println(readValueQuery(db, rcv));
                     System.out.println("Written");
@@ -172,7 +171,7 @@ public class Main {
 
     public static synchronized String readAllContaining(HashMap<String, String> db, String content, int pos) {
     	String s = "";
-    	String[] keys = (String [])db.keySet().toArray();
+    	String[] keys = db.keySet().toArray(new String[db.size()]);
     	for(int i = 0; i < db.size(); i++) {
     		String k = keys[i];
     		String v = db.get(k);
@@ -212,7 +211,6 @@ public class Main {
     		int position = Integer.parseInt(queryArray[i]);
     		String operator = queryArray[i + 1];
     		String valueToCompare = queryArray[i + 2];
-    		
 
     				
 			for (int j = 0; j < values.length; j++) {
@@ -234,7 +232,6 @@ public class Main {
 			keys = Arrays.copyOf(alreadyFound.keySet().toArray(), alreadyFound.keySet().toArray().length, String[].class);
 		}
     	
-    	
     	for (int i = 0; i < keys.length; i++) {
     		if(s.equals("")) {
     			s += keys[i] + SEP_DEL + db.get(keys[i]);
@@ -243,7 +240,6 @@ public class Main {
     			s += TRANSM_DEL + keys[i] + SEP_DEL + db.get(keys[i]);
     		}
 		}
-    	
 		
 		
     	return s;
@@ -285,6 +281,10 @@ public class Main {
 	    		return (s1.compareTo(s2) < 0) ? true : false;
 	    	case "GT":
 	    		return (s1.compareTo(s2) > 0) ? true : false;
+            case "LTE":
+	    		return (s1.compareTo(s2) <= 0) ? true : false;
+	    	case "GTE":
+	    		return (s1.compareTo(s2) >= 0) ? true : false;
     	}
     	
     	return false;
