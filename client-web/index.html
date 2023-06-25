@@ -2,32 +2,22 @@
 <html>
 
   <head>
-    <title>Subscribed Users</title>
+    <title>Cinema Multisala</title>
   </head>
 
   <body>
-    <h2>Add a new contact</h2>
-
-    <form id="add-contact" action="/contacts" method="POST">
-      <label for="input-name">Name: </label>
-      <input type="text" id="input-name" required>
-      <p />
-      <label for="input-number">Number: </label>
-      <input type="text" id="input-number" required>
-      <p />
-      <input type="submit" value="Subscribe!">
-    </form>
-
-    <hr />
-
-    <h2>Contact list</h2>
+    <h2>Prossime proiezioni</h2>
 
     <table border="1">
       <thead>
         <tr>
           <th>ID</th>
-          <th>Name</th>
-          <th>Number</th>
+          <th>ID Screening</th>
+          <th>Film</th>
+          <th>Data</th>
+          <th>Orario</th>
+          <th>Sala</th>
+          <th>Posti</th>
         </tr>
       </thead>
       <tbody id="table-body">
@@ -38,7 +28,7 @@
       const API_URI = "http://localhost:8080";
 
       // getUsers restituisce i contatti nella rubrica telefonica.
-      async function getContacts() {
+      async function getProjections() {
         // Bisogna effettuare i seguenti passi:
         //
         //	1. Chiamare GET "http://localhost:8080/contacts",
@@ -49,7 +39,59 @@
         // letterale. Comodo per costruire stringhe speciali.
         //
         // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
-        const endpoint = `${API_URI}/contacts`;
+        const endpoint = `${API_URI}/screening`;
+
+        // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+        // asincrona, per questo uso await.
+        const response = await fetch(endpoint);
+
+        // Controllo di eventuali errori.
+        if (!response.ok)
+          throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+        // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+        // avviene in modo asicrono, per questo uso "await".
+        return await response.json();
+      }
+
+      async function getMovie(id) {
+        // Bisogna effettuare i seguenti passi:
+        //
+        //	1. Chiamare GET "http://localhost:8080/contacts",
+        //	2. Controllare che la chiamata abbia avuto successo,
+        //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+        // L'interpolazione di stringhe permette di inserire espressioni in un
+        // letterale. Comodo per costruire stringhe speciali.
+        //
+        // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+        const endpoint = `${API_URI}/movie/${id}`;
+
+        // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+        // asincrona, per questo uso await.
+        const response = await fetch(endpoint);
+
+        // Controllo di eventuali errori.
+        if (!response.ok)
+          throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+        // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+        // avviene in modo asicrono, per questo uso "await".
+        return await response.json();
+      }
+
+      async function getHalls() {
+        // Bisogna effettuare i seguenti passi:
+        //
+        //	1. Chiamare GET "http://localhost:8080/contacts",
+        //	2. Controllare che la chiamata abbia avuto successo,
+        //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+        // L'interpolazione di stringhe permette di inserire espressioni in un
+        // letterale. Comodo per costruire stringhe speciali.
+        //
+        // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+        const endpoint = `${API_URI}/hall`;
 
         // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
         // asincrona, per questo uso await.
@@ -157,7 +199,7 @@
       }
 
       // addContactDOM aggiunge il contatto fornito in una nuova riga della tabella.
-      function addContactDOM(contact) {
+      async function addProjectionDOM(projection) {
         // Selezione di <tbody> e aggiunta di una nuova riga.
         const tbody = document.getElementById("table-body");
         const row = tbody.insertRow();
@@ -165,20 +207,82 @@
         // Aggiunta dell'ID.
         const id = row.insertCell();
         id.setAttribute("align", "center");
-        const idText = document.createTextNode(contact["id"]);
+        const idText = document.createTextNode(projection["id"]);
         id.appendChild(idText);
 
         // Aggiunta del nome.
-        const name = row.insertCell();
-        name.setAttribute("align", "center");
-        const nameText = document.createTextNode(contact["name"]);
-        name.appendChild(nameText);
+        const idScreening = row.insertCell();
+        idScreening.setAttribute("align", "center");
+        const idScreeningText = document.createTextNode(projection["idScreening"]);
+        idScreening.appendChild(idScreeningText);
 
         // Aggiunta del numero.
-        const number = row.insertCell();
-        number.setAttribute("align", "center");
-        const numberText = document.createTextNode(contact["number"]);
-        number.appendChild(numberText);
+        const idMovie = row.insertCell();
+        idMovie.setAttribute("align", "center");
+        const idMovieText = document.createTextNode(projection["idMovie"]);
+        try {
+          let movie = await getMovie(idMovieText);
+        } catch (error) {
+          onError("Failed to get movie", error);
+          return;
+        }
+        const keyNameText = document.createTextNode("Nome: ");
+        const nameText = document.createTextNode(movie["name"]);
+        idMovie.appendChild(nameText);
+        idMovie.appendChild(document.createElement("br"));
+        const keyGenreText = document.createTextNode("Genere: ");
+        const genreText = document.createTextNode(movie["genre"]);
+        idMovie.appendChild(genreText);
+        idMovie.appendChild(document.createElement("br"));
+        const keyDirectorText = document.createTextNode("Direttore: ");
+        const directorText = document.createTextNode(movie["director"]);
+        idMovie.appendChild(directorText);
+        idMovie.appendChild(document.createElement("br"));
+        const keyDurationText = document.createTextNode("Durata: ");
+        const durationText = document.createTextNode(movie["duration"]);
+        idMovie.appendChild(durationText);
+
+        const date = row.insertCell();
+        date.setAttribute("align", "center");
+        const dateTemp = new Date(...projection["date"]);
+        const dateText = document.createTextNode(dateTemp.toLocaleDateString("it-IT"));
+        date.appendChild(dateText);
+
+        const time = row.insertCell();
+        time.setAttribute("align", "center");
+        const timeText = document.createTextNode(projection["time"]);
+        time.appendChild(timeText);
+
+        //FARE LA SALA
+
+        const actions = row.insertCell();
+        actions.setAttribute("align", "center");
+        const reservationButton = document.createElement("button");
+        actions.appendChild(reservationButton);
+        const reservationText = document.createTextNode("Reserve seats");
+        reservationButton.appendChild(reservationText);
+        reservationButton.addEventListener("click", () => {
+          reserveSeatsDOM(hall);
+        });
+      }
+
+      function reserveSeatsDOM(hall) {
+        const table = document.createElement("table");
+        table.setAttribute("border", "1");
+
+        const postiRiga = document.createTextNode(hall["postiRiga"]);
+        const postiColonna = document.createTextNode(hall["postiColonna"]);
+        for (let i = 0; i < postiRiga; i++) {
+          let tbody = document.createElement("tbody");
+          const row = tbody.insertRow();
+          for (let j = 0; j < postiColonna; j++) {
+            const actions = row.insertCell();
+            actions.setAttribute("align", "center");
+            //ASSEGNARE RIGA-COLONNA AL CHECKBOX
+            const checkbox = document.createElement("checkbox");
+            actions.appendChild(checkbox);
+          }
+        }
       }
 
       // Ho definito init come una funzione asincrona, per cui l'esecuzione è slegata
@@ -190,12 +294,12 @@
         // getUsers è asincrona, per cui restituisce una Promise che verrà eseguita
         // in modo asincrono. Il metodo then permette di eseguire due funzioni: la
         // prima in caso di successo, la seconda in caso di errore.
-        getContacts().then((users) => users.forEach(addContactDOM),
+        getProjections().then((projection) => projection.forEach(addProjectionDOM),
           (error) => onError("Failed to get users", error));
 
         // Aggiungo l'handler per l'evento di invio al form.
-        const form = document.getElementById("add-contact");
-        form.addEventListener("submit", newContactDOM);
+        //const form = document.getElementById("add-contact");
+        //form.addEventListener("submit", newContactDOM);
       }
 
     </script>
