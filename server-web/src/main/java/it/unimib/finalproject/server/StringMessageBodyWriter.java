@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.time.LocalDate;
 
 /**
  * Genera un JSON valido con una sola stringa.
@@ -35,5 +36,6 @@ public class StringMessageBodyWriter implements MessageBodyWriter<String> {
     public void writeTo(final String t, final Class<?> type, final Type genericType, final Annotation[] annotations, final MediaType mediaType, final MultivaluedMap<String, Object> httpHeaders, final OutputStream out) throws IOException, WebApplicationException {
         final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.writeValue(out, t);
+        System.out.println("prova:" + out);
     }
 }
