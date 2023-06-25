@@ -106,6 +106,32 @@
         return await response.json();
       }
 
+      async function getHall(id) {
+        // Bisogna effettuare i seguenti passi:
+        //
+        //	1. Chiamare GET "http://localhost:8080/contacts",
+        //	2. Controllare che la chiamata abbia avuto successo,
+        //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+        // L'interpolazione di stringhe permette di inserire espressioni in un
+        // letterale. Comodo per costruire stringhe speciali.
+        //
+        // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+        const endpoint = `${API_URI}/hall/${id}`;
+
+        // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+        // asincrona, per questo uso await.
+        const response = await fetch(endpoint);
+
+        // Controllo di eventuali errori.
+        if (!response.ok)
+          throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+        // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+        // avviene in modo asicrono, per questo uso "await".
+        return await response.json();
+      }
+
       // getContact restituisce il singolo contatto.
       async function getContact(id) {
         // La funzione è molto simile a getContacts. Bisogna effettuare i
@@ -217,30 +243,35 @@
         idScreening.appendChild(idScreeningText);
 
         // Aggiunta del numero.
-        const idMovie = row.insertCell();
-        idMovie.setAttribute("align", "center");
-        const idMovieText = document.createTextNode(projection["idMovie"]);
+        const film = row.insertCell();
+        film.setAttribute("align", "left");
+        const idMovie = projection["idMovie"];
+        let movie;
         try {
-          let movie = await getMovie(idMovieText);
+          movie = await getMovie(idMovie);
         } catch (error) {
           onError("Failed to get movie", error);
           return;
         }
         const keyNameText = document.createTextNode("Nome: ");
         const nameText = document.createTextNode(movie["name"]);
-        idMovie.appendChild(nameText);
-        idMovie.appendChild(document.createElement("br"));
+        film.appendChild(keyNameText);
+        film.appendChild(nameText);
+        film.appendChild(document.createElement("br"));
         const keyGenreText = document.createTextNode("Genere: ");
         const genreText = document.createTextNode(movie["genre"]);
-        idMovie.appendChild(genreText);
-        idMovie.appendChild(document.createElement("br"));
+        film.appendChild(keyGenreText);
+        film.appendChild(genreText);
+        film.appendChild(document.createElement("br"));
         const keyDirectorText = document.createTextNode("Direttore: ");
         const directorText = document.createTextNode(movie["director"]);
-        idMovie.appendChild(directorText);
-        idMovie.appendChild(document.createElement("br"));
+        film.appendChild(keyDirectorText);
+        film.appendChild(directorText);
+        film.appendChild(document.createElement("br"));
         const keyDurationText = document.createTextNode("Durata: ");
         const durationText = document.createTextNode(movie["duration"]);
-        idMovie.appendChild(durationText);
+        film.appendChild(keyDurationText);
+        film.appendChild(durationText);
 
         const date = row.insertCell();
         date.setAttribute("align", "center");
@@ -250,19 +281,36 @@
 
         const time = row.insertCell();
         time.setAttribute("align", "center");
-        const timeText = document.createTextNode(projection["time"]);
-        time.appendChild(timeText);
+        const timeText = projection["time"];
+        const hours = Math.floor(timeText[0] / 60);  
+        const minutes = timeText[0] % 60;
+        const timeFormat = document.createTextNode(`${hours}:${minutes}`);
+        time.appendChild(timeFormat);
 
         //FARE LA SALA
+        const hall = row.insertCell();
+        hall.setAttribute("align", "center");
+        let hallById;
+        const idScreeningNumber = projection["idScreening"];
+        try {
+          hallById = await getHall(idScreeningNumber);
+        } catch (error) {
+          onError("Failed to get hall", error);
+          return;
+        }
+        const hallText = document.createTextNode(hallById["name"]);
+        hall.appendChild(hallText);
+        
 
         const actions = row.insertCell();
         actions.setAttribute("align", "center");
+        //actions.setAttribute("onclick", "window.location.href='seatsReservation.html';")
         const reservationButton = document.createElement("button");
         actions.appendChild(reservationButton);
-        const reservationText = document.createTextNode("Reserve seats");
+        const reservationText = document.createTextNode("Prenota");
         reservationButton.appendChild(reservationText);
         reservationButton.addEventListener("click", () => {
-          reserveSeatsDOM(hall);
+          reserveSeatsDOM(hallById);
         });
       }
 
@@ -270,19 +318,33 @@
         const table = document.createElement("table");
         table.setAttribute("border", "1");
 
-        const postiRiga = document.createTextNode(hall["postiRiga"]);
-        const postiColonna = document.createTextNode(hall["postiColonna"]);
-        for (let i = 0; i < postiRiga; i++) {
-          let tbody = document.createElement("tbody");
+        const postiRiga = hall["postiRiga"];
+        const numeroPostiRiga = postiRiga.charCodeAt(0) - 64;
+        const postiColonna = hall["postiColonna"];
+        
+        let tbody = document.createElement("tbody");
+
+        for (let i = 0; i < numeroPostiRiga; i++) {
           const row = tbody.insertRow();
           for (let j = 0; j < postiColonna; j++) {
             const actions = row.insertCell();
             actions.setAttribute("align", "center");
             //ASSEGNARE RIGA-COLONNA AL CHECKBOX
-            const checkbox = document.createElement("checkbox");
+            const riga = document.createTextNode(String.fromCharCode(i + 65));
+            actions.appendChild(riga);
+            const colonna = document.createTextNode(j + 1);
+            actions.appendChild(colonna);
+            const checkbox = document.createElement("input");
+            checkbox.setAttribute("type", "checkbox");
             actions.appendChild(checkbox);
+            row.appendChild(actions);
           }
+
+          tbody.appendChild(row);
         }
+
+        table.appendChild(tbody);
+        document.body.appendChild(table);
       }
 
       // Ho definito init come una funzione asincrona, per cui l'esecuzione è slegata

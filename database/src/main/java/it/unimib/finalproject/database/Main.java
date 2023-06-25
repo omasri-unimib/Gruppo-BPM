@@ -15,7 +15,7 @@ public class Main {
      * Porta di ascolto.
      */
 
-    public static final String EOL = System.getProperty("os.name").startsWith("Windows") ? "\r\n" : "\n";
+    public static final String EOL = System.getProperty("os.name").startsWith("Windows") ? "\n" : "\n";
 	public static final String TRANSM_DEL = "%";
 	public static final String SEP_DEL = ":";
 	
@@ -117,7 +117,7 @@ public class Main {
     					out.println(readAllContaining(db, 
     							rcv.split(TRANSM_DEL)[1], 
 							    Integer.parseInt(rcv.split(TRANSM_DEL)[2])));
-                        System.out.println("Written");
+                        System.out.println("Written " + EOL.length());
                 		break;
                 		
                 	case "READ-VALUE":
@@ -172,10 +172,11 @@ public class Main {
 
     public static synchronized String readAllContaining(HashMap<String, String> db, String content, int pos) {
     	String s = "";
-    	String[] keys = (String [])db.keySet().toArray();
+    	String[] keys = db.keySet().toArray(new String[db.size()]);
     	for(int i = 0; i < db.size(); i++) {
     		String k = keys[i];
     		String v = db.get(k);
+			System.out.println(k+" "+v);
     		if(v.length() > pos + content.length() && 
                v.startsWith(content, pos)) {
     			if(s.equals("")) {

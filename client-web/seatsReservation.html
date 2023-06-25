@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prneotazione posti</title>
+</head>
+<body>
+    <script>
+        function reserveSeatsDOM(hall) {
+        const table = document.createElement("table");
+        table.setAttribute("border", "1");
+
+        const postiRiga = document.createTextNode(hall["postiRiga"]);
+        const postiColonna = document.createTextNode(hall["postiColonna"]);
+        for (let i = 0; i < postiRiga; i++) {
+          let tbody = document.createElement("tbody");
+          const row = tbody.insertRow();
+          for (let j = 0; j < postiColonna; j++) {
+            const actions = row.insertCell();
+            actions.setAttribute("align", "center");
+            //ASSEGNARE RIGA-COLONNA AL CHECKBOX
+            const checkbox = document.createElement("checkbox");
+            actions.appendChild(checkbox);
+          }
+        }
+      }
+    </script>
+</body>
+</html>
