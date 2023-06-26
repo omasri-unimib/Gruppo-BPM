@@ -132,6 +132,64 @@
         return await response.json();
       }
 
+      async function newReservation(reservation) {
+        // Bisogna effettuare i seguenti passi:
+        //
+        //	1. Chiamare POST "http://localhost:8080/contacts" con
+        //		 nel body la rappresentazione JSON del nuovo utente,
+        //	2. Controllare che la chiamata abbia avuto successo,
+        //	3. Controllare l'header "Location", estrarre l'ID alla fine
+        //		 e restituirlo.
+        const endpoint = `${API_URI}/reservation`;
+
+        // In questo caso nella fetch devo passare delle opzioni:
+        //	* method: per indicare il metodo utilizzato,
+        //	* headers: gli header utilizati,
+        //	* body: il body della richiesta.
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(reservation)
+        });
+
+        if (!response.ok)
+          throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+        const location = response.headers.get("Location");
+
+        // Fa lo split e restituisce l'ultima sottostringa, che è l'ID.
+        return location.split("/").pop();
+
+      }
+
+      async function getReservationByIdScreening(idScreening) {
+        // Bisogna effettuare i seguenti passi:
+        //
+        //	1. Chiamare GET "http://localhost:8080/contacts",
+        //	2. Controllare che la chiamata abbia avuto successo,
+        //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+        // L'interpolazione di stringhe permette di inserire espressioni in un
+        // letterale. Comodo per costruire stringhe speciali.
+        //
+        // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+        const endpoint = `${API_URI}/reservation?screening=${idScreening}`;
+
+        // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+        // asincrona, per questo uso await.
+        const response = await fetch(endpoint);
+
+        // Controllo di eventuali errori.
+        if (!response.ok)
+          throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+        // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+        // avviene in modo asicrono, per questo uso "await".
+        return await response.json();
+      }
+
       // getContact restituisce il singolo contatto.
       async function getContact(id) {
         // La funzione è molto simile a getContacts. Bisogna effettuare i
@@ -240,6 +298,7 @@
         const idScreening = row.insertCell();
         idScreening.setAttribute("align", "center");
         const idScreeningText = document.createTextNode(projection["idScreening"]);
+        var idScreeningValue = projection["idScreening"];
         idScreening.appendChild(idScreeningText);
 
         // Aggiunta del numero.
@@ -277,6 +336,7 @@
         date.setAttribute("align", "center");
         const dateTemp = new Date(...projection["date"]);
         const dateText = document.createTextNode(dateTemp.toLocaleDateString("it-IT"));
+        var dateValue = dateTemp.toLocaleDateString("it-IT");
         date.appendChild(dateText);
 
         const time = row.insertCell();
@@ -285,9 +345,9 @@
         const hours = Math.floor(timeText[0] / 60);  
         const minutes = timeText[0] % 60;
         const timeFormat = document.createTextNode(`${hours}:${minutes}`);
+        var timeValue = `${hours}:${minutes}`;
         time.appendChild(timeFormat);
 
-        //FARE LA SALA
         const hall = row.insertCell();
         hall.setAttribute("align", "center");
         let hallById;
@@ -315,6 +375,26 @@
       }
 
       function reserveSeatsDOM(hall) {
+        document.body.appendChild(document.createElement("br"));
+        document.body.appendChild(document.createElement("br"));
+
+        const form = document.createElement("form");
+        form.setAttribute("id", "reservation");
+        form.setAttribute("action", "/reservation");
+        form.setAttribute("method", "POST");
+        const inputName = document.createElement("input");
+        inputName.setAttribute("type", "text");
+        inputName.setAttribute("id", "inputName");
+        inputName.setAttribute("placeholder", "Inserisci il tuo nome");
+        form.appendChild(inputName);
+        form.appendChild(document.createElement("br"));
+        form.appendChild(document.createElement("br"));
+        const inputSurname = document.createElement("input");
+        inputSurname.setAttribute("type", "text");
+        inputSurname.setAttribute("id", "inputSurname");
+        inputSurname.setAttribute("placeholder", "Inserisci il tuo cognome");
+        form.appendChild(inputSurname);
+
         const table = document.createElement("table");
         table.setAttribute("border", "1");
 
@@ -323,19 +403,25 @@
         const postiColonna = hall["postiColonna"];
         
         let tbody = document.createElement("tbody");
+        let rigaValue, colonnaValue, value, contId = 1, checkbox;
 
         for (let i = 0; i < numeroPostiRiga; i++) {
           const row = tbody.insertRow();
           for (let j = 0; j < postiColonna; j++) {
             const actions = row.insertCell();
             actions.setAttribute("align", "center");
-            //ASSEGNARE RIGA-COLONNA AL CHECKBOX
             const riga = document.createTextNode(String.fromCharCode(i + 65));
             actions.appendChild(riga);
+            rigaValue = String.fromCharCode(i + 65);
             const colonna = document.createTextNode(j + 1);
             actions.appendChild(colonna);
+            colonnaValue = j + 1;
+            value = rigaValue + colonnaValue;
             const checkbox = document.createElement("input");
             checkbox.setAttribute("type", "checkbox");
+            checkbox.setAttribute("value", value);
+            checkbox.setAttribute("id", "checkbox" + contId);
+            contId++;
             actions.appendChild(checkbox);
             row.appendChild(actions);
           }
@@ -344,7 +430,53 @@
         }
 
         table.appendChild(tbody);
-        document.body.appendChild(table);
+        form.appendChild(document.createElement("br"));
+        form.appendChild(document.createElement("br"));
+        form.appendChild(table);
+
+        form.appendChild(document.createElement("br"));
+        const submit = document.createElement("button");
+        const submitText = document.createTextNode("Prenota");
+        submit.appendChild(submitText);
+        form.appendChild(submit);
+        submit.addEventListener("click", () => {
+          reserveSeatsDOM(contId);
+        })
+
+        document.body.appendChild(form);
+      }
+
+      async function reserveSeatsDOM(contId) {
+        const name = document.getElementById("inputName").value; //ERRORE
+        const surname = document.getElementById("inputSurname").value;
+        let reservedSeats = [];
+
+        for (let i = 1; i < contId; i++) {
+          if (document.getElementById("checkbox" + i).checked == true) {
+            reservedSeats.push(document.getElementById("checkbox" + i).value);
+            document.getElementById("checkbox" + i).disabled = true;
+          }
+        }
+
+        try {
+          const reservationId = await newReservation({
+            "nameCustomer": name,
+            "surnameCustomer": surname,
+            "screening": idScreeningValue,
+            "date": dateValue,
+            "time": timeValue,
+            "positions": reservedSeats
+          });
+
+          //ottengo la nuova prenotazione
+          const reservation = await getReservationByIdScreening(reservationId);
+          console.log(reservation.nameCustomer);
+          //DA FARE
+          // Infine lo aggiungo alla tabella.
+          addUserDOM(user);
+        } catch (error) {
+          onError("Failed to add a new reservation", error);
+        }
       }
 
       // Ho definito init come una funzione asincrona, per cui l'esecuzione è slegata
