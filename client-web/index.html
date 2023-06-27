@@ -24,7 +24,12 @@
 
       </tbody>
     </table>
+
+    <br><br>
+    <a href="reservations.html">Filtra prenotazioni</a>
     <script>
+      let idScreeningValue, dateValue, timeValue;
+
       const API_URI = "http://localhost:8080";
 
       // getUsers restituisce i contatti nella rubrica telefonica.
@@ -164,32 +169,6 @@
 
       }
 
-      async function getReservationByIdScreening(idScreening) {
-        // Bisogna effettuare i seguenti passi:
-        //
-        //	1. Chiamare GET "http://localhost:8080/contacts",
-        //	2. Controllare che la chiamata abbia avuto successo,
-        //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
-
-        // L'interpolazione di stringhe permette di inserire espressioni in un
-        // letterale. Comodo per costruire stringhe speciali.
-        //
-        // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
-        const endpoint = `${API_URI}/reservation?screening=${idScreening}`;
-
-        // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
-        // asincrona, per questo uso await.
-        const response = await fetch(endpoint);
-
-        // Controllo di eventuali errori.
-        if (!response.ok)
-          throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
-
-        // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
-        // avviene in modo asicrono, per questo uso "await".
-        return await response.json();
-      }
-
       // getContact restituisce il singolo contatto.
       async function getContact(id) {
         // La funzione è molto simile a getContacts. Bisogna effettuare i
@@ -298,7 +277,7 @@
         const idScreening = row.insertCell();
         idScreening.setAttribute("align", "center");
         const idScreeningText = document.createTextNode(projection["idScreening"]);
-        var idScreeningValue = projection["idScreening"];
+        idScreeningValue = projection["idScreening"];
         idScreening.appendChild(idScreeningText);
 
         // Aggiunta del numero.
@@ -334,19 +313,15 @@
 
         const date = row.insertCell();
         date.setAttribute("align", "center");
-        const dateTemp = new Date(...projection["date"]);
-        const dateText = document.createTextNode(dateTemp.toLocaleDateString("it-IT"));
-        var dateValue = dateTemp.toLocaleDateString("it-IT");
+        const dateText = document.createTextNode(projection["date"]);
+        dateValue = projection["date"];
         date.appendChild(dateText);
 
         const time = row.insertCell();
         time.setAttribute("align", "center");
-        const timeText = projection["time"];
-        const hours = Math.floor(timeText[0] / 60);  
-        const minutes = timeText[0] % 60;
-        const timeFormat = document.createTextNode(`${hours}:${minutes}`);
-        var timeValue = `${hours}:${minutes}`;
-        time.appendChild(timeFormat);
+        const timeText = document.createTextNode(projection["time"]);
+        timeValue = projection["time"];
+        time.appendChild(timeText);
 
         const hall = row.insertCell();
         hall.setAttribute("align", "center");
@@ -360,7 +335,6 @@
         }
         const hallText = document.createTextNode(hallById["name"]);
         hall.appendChild(hallText);
-        
 
         const actions = row.insertCell();
         actions.setAttribute("align", "center");
@@ -439,15 +413,16 @@
         const submitText = document.createTextNode("Prenota");
         submit.appendChild(submitText);
         form.appendChild(submit);
+        console.log(idScreeningValue);
         submit.addEventListener("click", () => {
-          reserveSeatsDOM(contId);
+          newReservationDOM(contId);
         })
 
         document.body.appendChild(form);
       }
 
-      async function reserveSeatsDOM(contId) {
-        const name = document.getElementById("inputName").value; //ERRORE
+      async function newReservationDOM(contId) {
+        const name = document.getElementById("inputName").value;
         const surname = document.getElementById("inputSurname").value;
         let reservedSeats = [];
 
@@ -469,11 +444,9 @@
           });
 
           //ottengo la nuova prenotazione
-          const reservation = await getReservationByIdScreening(reservationId);
-          console.log(reservation.nameCustomer);
-          //DA FARE
+          //const reservation = await getReservationByIdScreening(reservationId);
           // Infine lo aggiungo alla tabella.
-          addUserDOM(user);
+          //addUserDOM(user);
         } catch (error) {
           onError("Failed to add a new reservation", error);
         }

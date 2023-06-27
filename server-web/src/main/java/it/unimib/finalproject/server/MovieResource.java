@@ -14,30 +14,7 @@ import java.io.*;
 import java.net.*;
 
 @Path("movie")
-public class MovieResource {
-
-	public static final String READ_TYPE_COMMAND = "READ-VALUE-IF-CONTAINS";
-	public static final String READ_ID_COMMAND = "READ-VALUE";
-	public static final String WRITE_VALUE_COMMAND = "WRITE-VALUE";
-	public static final String WRITE_KEY_VALUE_COMMAND = "WRITE-KEY-VALUE";
-	public static final String GEN_KEY_COMMAND = "GEN-KEY";
-	public static final String TYPE = "Movie";
-	public static final String TRANSM_DEL = "%";
-	public static final String SEP_DEL = ":";
-
-
-	/* Non riguarda il protocollo, ma è specifico a questa applcazione
-	   Rappresenta la posizione in cui viene specificato il tipo di dato
-	   (sala, prenotazione, film ... ) nel DataBase specifico a
-	   questa applicazione.
-	 */
-	public static final int TYPE_OFFSET_VALUE = 0;
-
-	public static final int DB_PORT = 8081;
-
-
-	Socket socketDB;
-
+public class MovieResource extends Protocol {
 
     /**
      * Implementazione di GET "/movie".

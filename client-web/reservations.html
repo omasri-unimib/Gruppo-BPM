@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtra prenotazioni</title>
+</head>
+<body>
+    <h2>Filtra prenotazioni</h2>
+    <a href="#" onclick="showIdScreeningFilter()">Visualizza prenotazioni per ID screening</a>
+    <br><br>
+    <a href="#" onclick="showDateFilter()">Visualizza prenotazioni per data</a>
+    <br><br>
+    <a href="#" onclick="showTimeFilter()">Visualizza prenotazioni per tempo</a>
+    <br><br>
+
+    <script>
+        const API_URI = "http://localhost:8080";
+        var idScreeningShown = false, dateShown = false, timeShown = false;
+
+        function showIdScreeningFilter() {
+            if (idScreeningShown == false) {
+                const labelIdScreening = document.createElement("label");
+                labelIdScreening.innerHTML = "Inserisci l'ID della proiezione";
+                document.body.appendChild(labelIdScreening);
+                document.body.appendChild(document.createElement("br"));
+                const idScreening = document.createElement("input");
+                idScreening.setAttribute("type", "number");
+                idScreening.setAttribute("min", "1");
+                idScreening.setAttribute("id", "inputIdScreening");
+                document.body.appendChild(idScreening);
+                idScreeningShown = true;
+                showButton();
+            }
+        }
+
+        function showDateFilter() {
+            if (dateShown == false) {
+                const labelDate = document.createElement("label");
+                labelDate.innerHTML = "Inserisci la data della proiezione";
+                document.body.appendChild(labelDate);
+                document.body.appendChild(document.createElement("br"));
+                const date = document.createElement("input");
+                date.setAttribute("type", "date");
+                date.setAttribute("id", "inputDate");
+                document.body.appendChild(date);
+                dateShown = true;
+                showButton();
+            }
+        }
+
+        function showTimeFilter() {
+            if (timeShown == false) {
+                const labelTime = document.createElement("label");
+                labelTime.innerHTML = "Inserisci l'orario della proiezione";
+                document.body.appendChild(labelTime);
+                document.body.appendChild(document.createElement("br"));
+                const time = document.createElement("input");
+                time.setAttribute("type", "time");
+                time.setAttribute("step", "1");
+                time.setAttribute("id", "inputTime");
+                document.body.appendChild(time);
+                timeShown = true;
+                showButton();
+            }
+        }
+
+        function showButton() {
+            const button = document.createElement("button");
+            const buttonText = document.createTextNode("OK");
+            button.appendChild(buttonText);
+            document.body.appendChild(button);
+            button.addEventListener("click", () => {
+                addReservationsDOM();
+            });
+        }
+
+        async function getReservationByIdScreening(idScreening) {
+            // Bisogna effettuare i seguenti passi:
+            //
+            //	1. Chiamare GET "http://localhost:8080/contacts",
+            //	2. Controllare che la chiamata abbia avuto successo,
+            //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+            // L'interpolazione di stringhe permette di inserire espressioni in un
+            // letterale. Comodo per costruire stringhe speciali.
+            //
+            // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+            const endpoint = `${API_URI}/reservation?screening=${idScreening}`;
+
+            // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+            // asincrona, per questo uso await.
+            const response = await fetch(endpoint);
+
+            // Controllo di eventuali errori.
+            if (!response.ok)
+            throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+            // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+            // avviene in modo asicrono, per questo uso "await".
+            return await response.json();
+        }
+
+        async function getReservationByDate(date) {
+            // Bisogna effettuare i seguenti passi:
+            //
+            //	1. Chiamare GET "http://localhost:8080/contacts",
+            //	2. Controllare che la chiamata abbia avuto successo,
+            //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+            // L'interpolazione di stringhe permette di inserire espressioni in un
+            // letterale. Comodo per costruire stringhe speciali.
+            //
+            // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+            const endpoint = `${API_URI}/reservation?screening=${date}`;
+
+            // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+            // asincrona, per questo uso await.
+            const response = await fetch(endpoint);
+
+            // Controllo di eventuali errori.
+            if (!response.ok)
+            throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+            // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+            // avviene in modo asicrono, per questo uso "await".
+            return await response.json();
+        }
+
+        async function addReservationsDOM() {
+            if (idScreeningShown) {
+                const idScreeningReservation = document.getElementById("inputIdScreening").value;
+                let reservationByIdScreening;
+                try {
+                    reservationByIdScreening = await getReservationByIdScreening(idScreeningReservation);
+                } catch (error) {
+                    onError("Failed to get reservation by ID screening", error);
+                    return;
+                }
+
+                const table = document.createElement("table");
+                createHeadTable();
+
+                const tbody = document.createElement("tbody");
+                for (let i = 0; i < reservationByIdScreening.length; i++) {
+                    const row = tbody.insertRow();
+
+                    const id = row.insertCell();
+                    id.setAttribute("align", "center");
+                    const idText = document.createTextNode(reservationByIdScreening["id"]);
+                    id.appendChild(idText);
+
+                    const name = row.insertCell();
+                    name.setAttribute("align", "center");
+                    const nameText = document.createTextNode(reservationByIdScreening["nameCustomer"]);
+                    name.appendChild(nameText);
+
+                    const surname = row.insertCell();
+                    surname.setAttribute("align", "center");
+                    const surnameText = document.createTextNode(reservationByIdScreening["surnameCustomer"]);
+                    surname.appendChild(surnameText);
+
+                    const screening = row.insertCell();
+                    screening.setAttribute("align", "center");
+                    const screeningText = document.createTextNode(reservationByIdScreening["screening"]);
+                    screening.appendChild(screeningText);
+
+                    const date = row.insertCell();
+                    date.setAttribute("align", "center");
+                    const dateText = document.createTextNode(reservationByIdScreening["date"]);
+                    date.appendChild(dateText);
+
+                    const time = row.insertCell();
+                    time.setAttribute("align", "center");
+                    const timeText = document.createTextNode(reservationByIdScreening["time"]);
+                    time.appendChild(timeText);
+
+                    const positions = row.insertCell();
+                    positions.setAttribute("align", "center");
+                    const positionsArray = reservationByIdScreening["positions"];
+                    let positionsText;
+                    for (let j = 0; j < positionsArray.length; j++) {
+                        positionsText += positionsArray[j] + " ";
+                    }
+                    positions.appendChild(positionsText);
+
+                    tbody.appendChild(row);
+                    table.appendChild(tbody);
+                    document.body.appendChild(table);
+                }
+            }
+            else if (dateShown) {
+                const dateReservation = document.getElementById("inputDate").value;
+                let reservationByDate;
+                try {
+                    reservationByDate = await getReservationByDate(dateReservation);
+                } catch (error) {
+                    onError("Failed to get reservation by date", error);
+                    return;
+                }
+
+                const table = document.createElement("table");
+                createHeadTable();
+                
+                const tbody = document.createElement("tbody");
+                for (let i = 0; i < reservationByDate.length; i++) {
+                    const row = tbody.insertRow();
+
+                    const id = row.insertCell();
+                    id.setAttribute("align", "center");
+                    const idText = document.createTextNode(reservationByDate["id"]);
+                    id.appendChild(idText);
+
+                    const name = row.insertCell();
+                    name.setAttribute("align", "center");
+                    const nameText = document.createTextNode(reservationByDate["nameCustomer"]);
+                    name.appendChild(nameText);
+
+                    const surname = row.insertCell();
+                    surname.setAttribute("align", "center");
+                    const surnameText = document.createTextNode(reservationByDate["surnameCustomer"]);
+                    surname.appendChild(surnameText);
+
+                    const screening = row.insertCell();
+                    screening.setAttribute("align", "center");
+                    const screeningText = document.createTextNode(reservationByDate["screening"]);
+                    screening.appendChild(screeningText);
+
+                    const date = row.insertCell();
+                    date.setAttribute("align", "center");
+                    const dateText = document.createTextNode(reservationByDate["date"]);
+                    date.appendChild(dateText);
+
+                    const time = row.insertCell();
+                    time.setAttribute("align", "center");
+                    const timeText = document.createTextNode(reservationByDate["time"]);
+                    time.appendChild(timeText);
+
+                    const positions = row.insertCell();
+                    positions.setAttribute("align", "center");
+                    const positionsArray = reservationByDate["positions"];
+                    let positionsText;
+                    for (let j = 0; j < positionsArray.length; j++) {
+                        positionsText += positionsArray[j] + " ";
+                    }
+                    positions.appendChild(positionsText);
+
+                    tbody.appendChild(row);
+                    table.appendChild(tbody);
+                    document.body.appendChild(table);
+                }
+            }
+        }
+
+        function createHeadTable() {
+            const thead = document.createElement("thead");
+            const rowHead = thead.insertRow();
+
+            const id = rowHead.insertCell();
+            id.setAttribute("align", "center");
+            const idText = document.createTextNode("ID");
+            id.appendChild(idText);
+
+            const name = rowHead.insertCell();
+            name.setAttribute("align", "center");
+            const nameText = document.createTextNode("Nome");
+            name.appendChild(nameText);
+
+            const surname = rowHead.insertCell();
+            surname.setAttribute("align", "center");
+            const surnameText = document.createTextNode("Cognome");
+            surname.appendChild(surnameText);
+
+            const screening = rowHead.insertCell();
+            screening.setAttribute("align", "center");
+            const screeningText = document.createTextNode("Screening");
+            screening.appendChild(screeningText);
+
+            const date = rowHead.insertCell();
+            date.setAttribute("align", "center");
+            const dateText = document.createTextNode("Data");
+            date.appendChild(dateText);
+
+            const time = rowHead.insertCell();
+            time.setAttribute("align", "center");
+            const timeText = document.createTextNode("Orario");
+            time.appendChild(timeText);
+
+            const positions = rowHead.insertCell();
+            positions.setAttribute("align", "center");
+            const positionsText = document.createTextNode("Posti");
+            positions.appendChild(positionsText);
+
+            thead.appendChild(rowHead);
+        }
+
+        function onError(msg, error) {
+            const out = `${msg}: ${error}`;
+            console.error(out);
+            alert(out);
+        }
+    </script>
+</body>
+</html>
