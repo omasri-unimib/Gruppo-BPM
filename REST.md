@@ -298,8 +298,8 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 [
     {
         "id": "1",
-        "name": "Science fiction",
-        "genre": "Interstellar",
+        "name": "Interstellar",
+        "genre": "Science fiction",
         "director": "Christopher Nolan",
         "duration": 2.0,
         "releaseDate": "2014-10-26"
@@ -330,8 +330,8 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 ```json
 {
         "id": "{id}",
-        "name": "Science fiction",
-        "genre": "Interstellar",
+        "name": "Interstellar",
+        "genre": "Science fiction",
         "director": "Christopher Nolan",
         "duration": 2.0,
         "releaseDate": "2014-10-26"
