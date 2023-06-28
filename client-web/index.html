@@ -3,6 +3,7 @@
 
   <head>
     <title>Cinema Multisala</title>
+    <link rel="stylesheet" href="style.css">
   </head>
 
   <body>
@@ -59,7 +60,33 @@
         return await response.json();
       }
 
-      async function getMovie(id) {
+      async function getProjectionById(id) {
+        // Bisogna effettuare i seguenti passi:
+        //
+        //	1. Chiamare GET "http://localhost:8080/contacts",
+        //	2. Controllare che la chiamata abbia avuto successo,
+        //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+        // L'interpolazione di stringhe permette di inserire espressioni in un
+        // letterale. Comodo per costruire stringhe speciali.
+        //
+        // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+        const endpoint = `${API_URI}/screening/${id}`;
+
+        // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+        // asincrona, per questo uso await.
+        const response = await fetch(endpoint);
+
+        // Controllo di eventuali errori.
+        if (!response.ok)
+          throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+        // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+        // avviene in modo asicrono, per questo uso "await".
+        return await response.json();
+      }
+
+      async function getMovieById(id) {
         // Bisogna effettuare i seguenti passi:
         //
         //	1. Chiamare GET "http://localhost:8080/contacts",
@@ -111,7 +138,7 @@
         return await response.json();
       }
 
-      async function getHall(id) {
+      async function getHallById(id) {
         // Bisogna effettuare i seguenti passi:
         //
         //	1. Chiamare GET "http://localhost:8080/contacts",
@@ -271,6 +298,7 @@
         const id = row.insertCell();
         id.setAttribute("align", "center");
         const idText = document.createTextNode(projection["id"]);
+        const idValue = projection["id"];
         id.appendChild(idText);
 
         // Aggiunta del nome.
@@ -286,7 +314,7 @@
         const idMovie = projection["idMovie"];
         let movie;
         try {
-          movie = await getMovie(idMovie);
+          movie = await getMovieById(idMovie);
         } catch (error) {
           onError("Failed to get movie", error);
           return;
@@ -328,13 +356,21 @@
         let hallById;
         const idScreeningNumber = projection["idScreening"];
         try {
-          hallById = await getHall(idScreeningNumber);
+          hallById = await getHallById(idScreeningNumber);
         } catch (error) {
-          onError("Failed to get hall", error);
+          onError("Failed to get hall by ID", error);
           return;
         }
         const hallText = document.createTextNode(hallById["name"]);
         hall.appendChild(hallText);
+
+        let screeningById;
+        try {
+          screeningById = await getProjectionById(idValue);
+        } catch (error) {
+          onError("Failed to get projection by ID", error);
+          return;
+        }
 
         const actions = row.insertCell();
         actions.setAttribute("align", "center");
@@ -344,18 +380,18 @@
         const reservationText = document.createTextNode("Prenota");
         reservationButton.appendChild(reservationText);
         reservationButton.addEventListener("click", () => {
-          reserveSeatsDOM(hallById);
+          reserveSeatsDOM(hallById, screeningById);
         });
       }
 
-      function reserveSeatsDOM(hall) {
+      function reserveSeatsDOM(hall, screeningById) {//avrei bisogno delle Reservation?
         document.body.appendChild(document.createElement("br"));
         document.body.appendChild(document.createElement("br"));
 
         const form = document.createElement("form");
         form.setAttribute("id", "reservation");
-        form.setAttribute("action", "/reservation");
-        form.setAttribute("method", "POST");
+        //form.setAttribute("action", "/reservation");
+        //form.setAttribute("method", "POST");
         const inputName = document.createElement("input");
         inputName.setAttribute("type", "text");
         inputName.setAttribute("id", "inputName");
