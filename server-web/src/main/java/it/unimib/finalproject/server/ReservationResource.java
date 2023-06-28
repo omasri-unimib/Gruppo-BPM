@@ -32,11 +32,6 @@ public class ReservationResource extends Protocol {
         List<Reservation> result = new ArrayList<Reservation>();
 
         try {
-    		socketDB = new Socket("localhost", DB_PORT);
-    		System.out.println("Connected");
-    		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
-    		BufferedReader in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
-
             System.out.println(dateIsValid(date)+ " " +date);
 
             if(date != null && !dateIsValid(date) || time != null && !timeIsValid(time))
@@ -65,30 +60,8 @@ public class ReservationResource extends Protocol {
                 TRANSM_DEL + "GTE" +
                 TRANSM_DEL + time : "") ;
 
-            System.out.println(command);
-    		out.println(command);
-    		out.println(".");
-    		out.flush();
+            result = readObject(command, Reservation.class);
 
-            String inputLine;
-
-            while ((inputLine = in.readLine()) != null) {
-            	System.out.println("Read: " + inputLine);
-                String[] splitObjects = inputLine.split(TRANSM_DEL);
-                for(String s : splitObjects){
-                    if(s.trim() != ""){
-                        Reservation temp = new Reservation();
-                        if(temp.Deserialize(s))
-                            result.add(temp);
-                    }
-                }
-                if (".".equals(inputLine))
-                    break;
-            }
-
-    		in.close();
-            out.close();
-            socketDB.close();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -110,38 +83,19 @@ public class ReservationResource extends Protocol {
         // Si apre una socket verso il database, si ottiene il contatto con
         // l'ID specificato.
 
-        Reservation result = new Reservation();
+        List<Reservation> result = new ArrayList<Reservation>();
         boolean flag = false;
 
     	try {
-    		socketDB = new Socket("localhost", DB_PORT);
-    		System.out.println("Connected");
-    		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
-    		var in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
 
+            String command = READ_ID_COMMAND + TRANSM_DEL + id;
 
-    		out.println(READ_ID_COMMAND + TRANSM_DEL + id);
-    		out.println(".");
-    		out.flush();
+            result = readObject(command, Reservation.class);
 
-            String inputLine;
-
-            while ((inputLine = in.readLine()) != null) {
-            	System.out.println("Read: " + inputLine);
-                String[] splitObjects = inputLine.split(TRANSM_DEL);
-                String s = splitObjects[0];
-                if(s.trim() != ""){
-                    if(result.Deserialize(s))
-                        flag = true;
-                }
-                if (".".equals(inputLine)) {
-                    break;
-                }
-            }
-
-            in.close();
-            out.close();
-            socketDB.close();
+            if(result.size() > 0)
+                flag = true;
+            else
+                flag = false;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -149,7 +103,7 @@ public class ReservationResource extends Protocol {
 		}
 
         if (flag == true)
-            return Response.ok(result).build();
+            return Response.ok(result.get(0)).build();
         else
             return Response.status(Response.Status.NOT_FOUND).build();
 

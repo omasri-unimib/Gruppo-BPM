@@ -28,37 +28,9 @@ public class HallResource extends Protocol {
         List<Hall> result = new ArrayList<Hall>();
 
     	try {
-    		socketDB = new Socket("localhost", DB_PORT);
-    		System.out.println("Connected");
-    		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
-    		BufferedReader in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
+    		String command = READ_TYPE_COMMAND + TRANSM_DEL + TYPE + TRANSM_DEL + TYPE_OFFSET_VALUE;
     		
-    		
-    		out.println(READ_TYPE_COMMAND + TRANSM_DEL + TYPE + TRANSM_DEL + TYPE_OFFSET_VALUE);
-    		out.println(".");
-    		out.flush();
-    		
-    		
-            String inputLine;
-
-            while ((inputLine = in.readLine()) != null) {
-            	System.out.println("Read: " + inputLine);
-                String[] splitObjects = inputLine.split(TRANSM_DEL);
-                for(String s : splitObjects){
-                    if(s.trim() != ""){
-                        Hall temp = new Hall();
-                        if(temp.Deserialize(s))
-                            result.add(temp);
-                    }
-                }
-                if (".".equals(inputLine)) {
-                    break;
-                }
-            }
-            
-    		in.close();
-            out.close();
-            socketDB.close();
+            result = readObject(command, Hall.class);
     		
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -79,38 +51,19 @@ public class HallResource extends Protocol {
         // Si apre una socket verso il database, si ottiene il contatto con
         // l'ID specificato.
 
-        Hall result = new Hall();
+        List<Hall> result = new ArrayList<Hall>();
         boolean flag = false;
 
     	try {
-    		socketDB = new Socket("localhost", DB_PORT);
-    		System.out.println("Connected");
-    		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
-    		var in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
-    		
-    		
-    		out.println(READ_ID_COMMAND + TRANSM_DEL + id);
-    		out.println(".");
-    		out.flush();
-    		
-            String inputLine;
 
-            while ((inputLine = in.readLine()) != null) {
-            	System.out.println("Read: " + inputLine);
-                String[] splitObjects = inputLine.split(TRANSM_DEL);
-                String s = splitObjects[0];
-                if(s.trim() != ""){
-                    if(result.Deserialize(s))
-                        flag = true;
-                }
-                if (".".equals(inputLine)) {
-                    break;
-                }
-            }
-            
-            in.close();
-            out.close();
-            socketDB.close();
+            String command = READ_ID_COMMAND + TRANSM_DEL + id;
+
+            result = readObject(command, Hall.class);
+
+            if(result.size() > 0)
+                flag = true;
+            else
+                flag = false;
     		
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -118,7 +71,7 @@ public class HallResource extends Protocol {
 		}
 
         if(flag == true)
-            return Response.ok(result).build();
+            return Response.ok(result.get(0)).build();
         else
             return Response.status(Response.Status.NOT_FOUND).build();
     	

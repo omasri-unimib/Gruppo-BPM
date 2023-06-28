@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Rappresenta una Prenotazione.
  */
-public class Movie {
+public class Movie implements Serializable {
 
     private String id;
 

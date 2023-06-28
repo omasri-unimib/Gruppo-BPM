@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Rappresenta una Prenotazione.
  */
-public class Hall {
+public class Hall implements Serializable{
 
     private String id;
 

@@ -12,6 +12,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.io.*;
 import java.net.*;
+import java.time.LocalDate;
 
 @Path("screening")
 public class ScreeningResource extends Protocol {
@@ -21,42 +22,36 @@ public class ScreeningResource extends Protocol {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getScreening() {
+    public Response getScreening(@QueryParam("date") String date, @QueryParam("time") String time) {
         // Si apre una socket verso il database, si ottengono i dati e si
         // costruisce la risposta.
 
         List<Screening> result = new ArrayList<Screening>();
 
     	try {
-    		socketDB = new Socket("localhost", DB_PORT);
-    		System.out.println("Connected");
-    		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
-    		BufferedReader in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
 
-    		out.println(READ_TYPE_COMMAND + TRANSM_DEL + TYPE + TRANSM_DEL + TYPE_OFFSET_VALUE);
-    		out.println(".");
-    		out.flush();
+            if(date != null && !dateIsValid(date) || time != null && !timeIsValid(time))
+                return Response.status(400).build();
 
-            String inputLine;
+            String command =
+                // TYPE
+                (READ_QUERY_COMMAND +
+                TRANSM_DEL + ATTR_DEL +
+                TRANSM_DEL + 0 +
+                TRANSM_DEL + "EQ" +
+                TRANSM_DEL + TYPE)
+                +
+                (date != null ?
+                TRANSM_DEL + 3 +
+                TRANSM_DEL + "GTE" +
+                TRANSM_DEL + date : "")
+                +
+                (time != null ?
+                TRANSM_DEL + 4 +
+                TRANSM_DEL + "GTE" +
+                TRANSM_DEL + time : "") ;
 
-            while ((inputLine = in.readLine()) != null) {
-            	System.out.println("Read: " + inputLine);
-                String[] splitObjects = inputLine.split(TRANSM_DEL);
-                for(String s : splitObjects){
-                    if(s.trim() != ""){
-                        Screening temp = new Screening();
-                        if(temp.Deserialize(s))
-                            result.add(temp);
-                    }
-                }
-                if (".".equals(inputLine)) {
-                    break;
-                }
-            }
-
-    		in.close();
-            out.close();
-            socketDB.close();
+            result = readObject(command, Screening.class);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -78,38 +73,18 @@ public class ScreeningResource extends Protocol {
         // Si apre una socket verso il database, si ottiene il contatto con
         // l'ID specificato.
 
-        Screening result = new Screening();
+        List<Screening> result = new ArrayList<Screening>();
         boolean flag = false;
 
     	try {
-    		socketDB = new Socket("localhost", DB_PORT);
-    		System.out.println("Connected");
-    		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
-    		var in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
+    		String command = READ_ID_COMMAND + TRANSM_DEL + id;
 
+            result = readObject(command, Screening.class);
 
-    		out.println(READ_ID_COMMAND + TRANSM_DEL + id);
-    		out.println(".");
-    		out.flush();
-
-            String inputLine;
-
-            while ((inputLine = in.readLine()) != null) {
-            	System.out.println("Read: " + inputLine);
-                String[] splitObjects = inputLine.split(TRANSM_DEL);
-                String s = splitObjects[0];
-                if(s.trim() != ""){
-                    if(result.Deserialize(s))
-                        flag = true;
-                }
-                if (".".equals(inputLine)) {
-                    break;
-                }
-            }
-
-            in.close();
-            out.close();
-            socketDB.close();
+            if(result.size() > 0)
+                flag = true;
+            else
+                flag = false;socketDB = new Socket("localhost", DB_PORT);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -117,7 +92,7 @@ public class ScreeningResource extends Protocol {
 		}
 
         if(flag == true)
-            return Response.ok(result).build();
+            return Response.ok(result.get(0)).build();
         else
             return Response.status(Response.Status.NOT_FOUND).build();
 
