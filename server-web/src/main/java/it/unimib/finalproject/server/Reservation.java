@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.*;
 /**
  * Rappresenta una Prenotazione.
  */
-public class Reservation {
+public class Reservation implements Serializable {
 
     private String id;
 

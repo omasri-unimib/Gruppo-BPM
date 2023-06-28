@@ -28,35 +28,10 @@ public class MovieResource extends Protocol {
         List<Movie> result = new ArrayList<Movie>();
 
     	try {
-    		socketDB = new Socket("localhost", DB_PORT);
-    		System.out.println("Connected");
-    		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
-    		BufferedReader in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
 
-    		out.println(READ_TYPE_COMMAND + TRANSM_DEL + TYPE + TRANSM_DEL + TYPE_OFFSET_VALUE);
-    		out.println(".");
-    		out.flush();
+            String command = READ_TYPE_COMMAND + TRANSM_DEL + TYPE + TRANSM_DEL + TYPE_OFFSET_VALUE;
 
-            String inputLine;
-
-            while ((inputLine = in.readLine()) != null) {
-            	System.out.println("Read: " + inputLine);
-                String[] splitObjects = inputLine.split(TRANSM_DEL);
-                for(String s : splitObjects){
-                    if(s.trim() != ""){
-                        Movie temp = new Movie();
-                        if(temp.Deserialize(s))
-                            result.add(temp);
-                    }
-                }
-                if (".".equals(inputLine)) {
-                    break;
-                }
-            }
-
-    		in.close();
-            out.close();
-            socketDB.close();
+            result = readObject(command, Movie.class);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -78,38 +53,19 @@ public class MovieResource extends Protocol {
         // Si apre una socket verso il database, si ottiene il contatto con
         // l'ID specificato.
 
-        Movie result = new Movie();
+        List<Movie> result = new ArrayList<Movie>();
         boolean flag = false;
 
     	try {
-    		socketDB = new Socket("localhost", DB_PORT);
-    		System.out.println("Connected");
-    		PrintWriter out = new PrintWriter(socketDB.getOutputStream());
-    		var in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
 
+            String command = READ_ID_COMMAND + TRANSM_DEL + id;
 
-    		out.println(READ_ID_COMMAND + TRANSM_DEL + id);
-    		out.println(".");
-    		out.flush();
+            result = readObject(command, Movie.class);
 
-            String inputLine;
-
-            while ((inputLine = in.readLine()) != null) {
-            	System.out.println("Read: " + inputLine);
-                String[] splitObjects = inputLine.split(TRANSM_DEL);
-                String s = splitObjects[0];
-                if(s.trim() != ""){
-                    if(result.Deserialize(s))
-                        flag = true;
-                }
-                if (".".equals(inputLine)) {
-                    break;
-                }
-            }
-
-            in.close();
-            out.close();
-            socketDB.close();
+            if(result.size() > 0)
+                flag = true;
+            else
+                flag = false;
 
 		} catch (Exception e) {
 			e.printStackTrace();

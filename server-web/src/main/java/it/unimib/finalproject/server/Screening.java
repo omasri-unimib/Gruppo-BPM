@@ -3,17 +3,18 @@ package it.unimib.finalproject.server;
 import java.time.*;
 
 import java.util.stream.*;
+
 import java.time.*;
 import java.util.*;
 /**
  * Rappresenta una Proiezione.
  */
-public class Screening {
-    // Identificativo univoco della Prenotazione.
+public class Screening implements Serializable {
+    // Identificativo univoco della Proiezione.
     private String id;
 
     // Nome del Cliente associato alla Prenotazione.
-    private String idScreening;
+    private String idHall;
 
     // Nome del Cliente associato alla Prenotazione.
     private String idMovie;
@@ -56,12 +57,12 @@ public class Screening {
         this.time = time;
     }
 
-    public String getIdScreening() {
-        return idScreening;
+    public String getIdHall() {
+        return idHall;
     }
 
-    public void setIdScreening(String idScreening) {
-        this.idScreening = idScreening;
+    public void setIdHall(String idHall) {
+        this.idHall = idHall;
     }
 
     public boolean Deserialize(String s){
@@ -78,7 +79,7 @@ public class Screening {
                         return false;
                     break;
                 case 1:
-                    idScreening = splitParams[i]; break;
+                    idHall = splitParams[i]; break;
                 case 2:
                     idMovie = splitParams[i]; break;
                 case 3:

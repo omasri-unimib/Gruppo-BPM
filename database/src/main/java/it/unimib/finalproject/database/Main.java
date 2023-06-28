@@ -15,7 +15,6 @@ public class Main {
      * Porta di ascolto.
      */
 
-    // \r\n on Windows and \n on UNIX
     public static final String EOL = System.lineSeparator();
 	public static final String TRANSM_DEL = "%";
 	public static final String SEP_DEL = ":";

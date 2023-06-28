@@ -16,7 +16,7 @@ Documentazione delle API REST di esempio. Si assume che i dati vengano scambiati
   - E.G. /reservation?screening=1
 - `/reservation?date={data: yyyy-MM-dd}` filtra per tutte le Prenotazioni la cui data e' maggiore di quella inserita per parametro.
   - E.G. /reservation?date=2023-10-01
-- `/reservation?time={tempo: HH:mm:ss}` filtra per tutte le Prenotazioni le cui ore e secondi sono maggiori di quelli inseriti per prametro.
+- `/reservation?time={tempo: HH:mm:ss}` filtra per tutte le Prenotazioni le cui ore e secondi sono maggiori di quelli inseriti per parametro.
   - E.G. /reservation?time=09:33:00
 
 **Body richiesta**: nulla
@@ -152,7 +152,12 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 
 **Descrizione**: Restituisce l'elenco di tutte le Proiezioni.
 
-**Parametri**: Nessuno.
+**Parametri**: Sono previsiti 2 parametri 
+
+- `/screening?date={data: yyyy-MM-dd}` filtra per tutte le Proiezioni la cui data e' maggiore di quella inserita per parametro.
+  - E.G. /reservation?date=2023-10-01
+- `/screening?time={tempo: HH:mm:ss}` filtra per tutte le Proiezioni le cui ore e secondi sono maggiori di quelli inseriti per parametro.
+  - E.G. /reservation?time=09:33:00
 
 **Header**: Nessuno.
 
@@ -164,7 +169,7 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 [
     {
         "id": "1",
-        "idScreening": "S1",
+        "idHall": "S1",
         "idMovie": "1",
         "date": "2023-10-29",
         "time": "22:00:00"
@@ -195,7 +200,7 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 ```json
 {
     "id": "{id}",
-    "idScreening": "S1",
+    "idHall": "S1",
     "idMovie": "1",
     "date": "2023-10-29",
     "time": "22:00:00"
