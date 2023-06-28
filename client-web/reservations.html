@@ -11,7 +11,7 @@
     <br><br>
     <a href="#" onclick="showDateFilter()">Visualizza prenotazioni per data</a>
     <br><br>
-    <a href="#" onclick="showTimeFilter()">Visualizza prenotazioni per tempo</a>
+    <a href="#" onclick="showTimeFilter()">Visualizza prenotazioni per orario</a>
     <br><br>
 
     <script>
@@ -94,7 +94,7 @@
 
             // Controllo di eventuali errori.
             if (!response.ok)
-            throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+                throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
 
             // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
             // avviene in modo asicrono, per questo uso "await".
@@ -112,7 +112,7 @@
             // letterale. Comodo per costruire stringhe speciali.
             //
             // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
-            const endpoint = `${API_URI}/reservation?screening=${date}`;
+            const endpoint = `${API_URI}/reservation?date=${date}`;
 
             // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
             // asincrona, per questo uso await.
@@ -120,12 +120,104 @@
 
             // Controllo di eventuali errori.
             if (!response.ok)
-            throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+                throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
 
             // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
             // avviene in modo asicrono, per questo uso "await".
             return await response.json();
         }
+
+        async function getReservationByTime(time) {
+            // Bisogna effettuare i seguenti passi:
+            //
+            //	1. Chiamare GET "http://localhost:8080/contacts",
+            //	2. Controllare che la chiamata abbia avuto successo,
+            //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+            // L'interpolazione di stringhe permette di inserire espressioni in un
+            // letterale. Comodo per costruire stringhe speciali.
+            //
+            // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+            const endpoint = `${API_URI}/reservation?time=${time}`;
+
+            // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+            // asincrona, per questo uso await.
+            const response = await fetch(endpoint);
+
+            // Controllo di eventuali errori.
+            if (!response.ok)
+                throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+            // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+            // avviene in modo asicrono, per questo uso "await".
+            return await response.json();
+        }
+
+        async function putReservation(id, value) {
+            // Bisogna effettuare i seguenti passi:
+            //
+            //	1. Chiamare PUT "http://localhost:8080/users/{userId}" con
+            //		 nel body la rappresentazione JSON di una stringa,
+            //	2. Controllare che la chiamata abbia avuto successo.
+            const endpoint = `${API_URI}/reservation?id=${id}`;
+
+            // In questo caso nella fetch devo passare delle opzioni:
+            //	* method: per indicare il metodo utilizzato,
+            //	* headers: gli header utilizati,
+            //	* body: il body della richiesta.
+            const response = await fetch(endpoint, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(value)
+            });
+
+            if (!response.ok)
+                throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+        }
+
+        async function getReservationById(id) {
+            // Bisogna effettuare i seguenti passi:
+            //
+            //	1. Chiamare GET "http://localhost:8080/contacts",
+            //	2. Controllare che la chiamata abbia avuto successo,
+            //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+            // L'interpolazione di stringhe permette di inserire espressioni in un
+            // letterale. Comodo per costruire stringhe speciali.
+            //
+            // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+            const endpoint = `${API_URI}/reservation/${id}`;
+
+            // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+            // asincrona, per questo uso await.
+            const response = await fetch(endpoint);
+
+            // Controllo di eventuali errori.
+            if (!response.ok)
+                throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+            // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+            // avviene in modo asicrono, per questo uso "await".
+            return await response.json();
+        }
+
+        /*async function deleteReservation(id) {
+            // Bisogna effettuare i seguenti passi:
+            //
+            //	1. Chiamare DELETE "http://localhost:8080/users/{userId}",
+            //	2. Controllare che la chiamata abbia avuto successo.
+            const endpoint = `${API_URI}/reservation/${id}`;
+
+            const response = await fetch(endpoint, {
+                method: "DELETE"
+            });
+
+            if (!response.ok)
+                throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+        }*/
 
         async function addReservationsDOM() {
             if (idScreeningShown) {
@@ -138,8 +230,11 @@
                     return;
                 }
 
+                document.body.appendChild(document.createElement("br"));
+                document.body.appendChild(document.createElement("br"));
                 const table = document.createElement("table");
-                createHeadTable();
+                table.setAttribute("border", "1");
+                createHeadTable(table);
 
                 const tbody = document.createElement("tbody");
                 for (let i = 0; i < reservationByIdScreening.length; i++) {
@@ -147,42 +242,61 @@
 
                     const id = row.insertCell();
                     id.setAttribute("align", "center");
-                    const idText = document.createTextNode(reservationByIdScreening["id"]);
+                    const idText = document.createTextNode(reservationByIdScreening[i]["id"]);
+                    const idValue = reservationByIdScreening[i]["id"];
                     id.appendChild(idText);
 
                     const name = row.insertCell();
                     name.setAttribute("align", "center");
-                    const nameText = document.createTextNode(reservationByIdScreening["nameCustomer"]);
+                    const nameText = document.createTextNode(reservationByIdScreening[i]["nameCustomer"]);
                     name.appendChild(nameText);
 
                     const surname = row.insertCell();
                     surname.setAttribute("align", "center");
-                    const surnameText = document.createTextNode(reservationByIdScreening["surnameCustomer"]);
+                    const surnameText = document.createTextNode(reservationByIdScreening[i]["surnameCustomer"]);
                     surname.appendChild(surnameText);
 
                     const screening = row.insertCell();
                     screening.setAttribute("align", "center");
-                    const screeningText = document.createTextNode(reservationByIdScreening["screening"]);
+                    const screeningText = document.createTextNode(reservationByIdScreening[i]["screening"]);
                     screening.appendChild(screeningText);
 
                     const date = row.insertCell();
                     date.setAttribute("align", "center");
-                    const dateText = document.createTextNode(reservationByIdScreening["date"]);
+                    const dateText = document.createTextNode(reservationByIdScreening[i]["date"]);
                     date.appendChild(dateText);
 
                     const time = row.insertCell();
                     time.setAttribute("align", "center");
-                    const timeText = document.createTextNode(reservationByIdScreening["time"]);
+                    const timeText = document.createTextNode(reservationByIdScreening[i]["time"]);
                     time.appendChild(timeText);
 
                     const positions = row.insertCell();
                     positions.setAttribute("align", "center");
-                    const positionsArray = reservationByIdScreening["positions"];
-                    let positionsText;
+                    const positionsArray = reservationByIdScreening[i]["positions"];
+                    let positionsText = "";
                     for (let j = 0; j < positionsArray.length; j++) {
                         positionsText += positionsArray[j] + " ";
                     }
-                    positions.appendChild(positionsText);
+                    positions.appendChild(document.createTextNode(positionsText));
+
+                    const actions = row.insertCell();
+                    actions.setAttribute("align", "center");
+                    const editButton = document.createElement("button");
+                    actions.appendChild(editButton);
+                    const editButtonText = document.createTextNode("Modifica");
+                    editButton.appendChild(editButtonText);
+                    editButton.addEventListener("click", () => {
+                        putReservationDOM(idValue, positions);
+                    });
+                    const deleteButton = document.createElement("button");
+                    actions.appendChild(deleteButton);
+                    const deleteButtonText = document.createTextNode("Elimina");
+                    deleteButton.appendChild(deleteButtonText);
+                    deleteButton.addEventListener("click", () => {
+                        deleteReservation(reservationByIdScreening["id"]).then(() => row.remove(),
+                            (error) => onError("Failed to delete reservation", error));
+                    });
 
                     tbody.appendChild(row);
                     table.appendChild(tbody);
@@ -198,52 +312,159 @@
                     onError("Failed to get reservation by date", error);
                     return;
                 }
-
+                //PROBLEMA: LUNGHEZZA 0
+                document.body.appendChild(document.createElement("br"));
+                document.body.appendChild(document.createElement("br"));
                 const table = document.createElement("table");
-                createHeadTable();
-                
+                table.setAttribute("border", "1");
+                createHeadTable(table);
+
                 const tbody = document.createElement("tbody");
                 for (let i = 0; i < reservationByDate.length; i++) {
                     const row = tbody.insertRow();
 
                     const id = row.insertCell();
                     id.setAttribute("align", "center");
-                    const idText = document.createTextNode(reservationByDate["id"]);
+                    const idText = document.createTextNode(reservationByDate[i]["id"]);
+                    const idValue = reservationByDate[i]["id"];
                     id.appendChild(idText);
 
                     const name = row.insertCell();
                     name.setAttribute("align", "center");
-                    const nameText = document.createTextNode(reservationByDate["nameCustomer"]);
+                    const nameText = document.createTextNode(reservationByDate[i]["nameCustomer"]);
                     name.appendChild(nameText);
 
                     const surname = row.insertCell();
                     surname.setAttribute("align", "center");
-                    const surnameText = document.createTextNode(reservationByDate["surnameCustomer"]);
+                    const surnameText = document.createTextNode(reservationByDate[i]["surnameCustomer"]);
                     surname.appendChild(surnameText);
 
                     const screening = row.insertCell();
                     screening.setAttribute("align", "center");
-                    const screeningText = document.createTextNode(reservationByDate["screening"]);
+                    const screeningText = document.createTextNode(reservationByDate[i]["screening"]);
                     screening.appendChild(screeningText);
 
                     const date = row.insertCell();
                     date.setAttribute("align", "center");
-                    const dateText = document.createTextNode(reservationByDate["date"]);
+                    const dateText = document.createTextNode(reservationByDate[i]["date"]);
                     date.appendChild(dateText);
 
                     const time = row.insertCell();
                     time.setAttribute("align", "center");
-                    const timeText = document.createTextNode(reservationByDate["time"]);
+                    const timeText = document.createTextNode(reservationByDate[i]["time"]);
                     time.appendChild(timeText);
 
                     const positions = row.insertCell();
                     positions.setAttribute("align", "center");
-                    const positionsArray = reservationByDate["positions"];
-                    let positionsText;
+                    const positionsArray = reservationByDate[i]["positions"];
+                    let positionsText = "";
                     for (let j = 0; j < positionsArray.length; j++) {
                         positionsText += positionsArray[j] + " ";
                     }
                     positions.appendChild(positionsText);
+
+                    const actions = row.insertCell();
+                    actions.setAttribute("align", "center");
+                    const editButton = document.createElement("button");
+                    actions.appendChild(editButton);
+                    const editButtonText = document.createTextNode("Modifica");
+                    editButton.appendChild(editButtonText);
+                    editButton.addEventListener("click", () => {
+                        putReservationDOM(idValue, positions);
+                    });
+                    const deleteButton = document.createElement("button");
+                    actions.appendChild(deleteButton);
+                    const deleteButtonText = document.createTextNode("Elimina");
+                    deleteButton.appendChild(deleteButtonText);
+                    deleteButton.addEventListener("click", () => {
+                        deleteReservation(reservationByDate["id"]).then(() => row.remove(),
+                            (error) => onError("Failed to delete reservation", error));
+                    });
+
+                    tbody.appendChild(row);
+                    table.appendChild(tbody);
+                    document.body.appendChild(table);
+                }
+            }
+            else if (timeShown) {
+                const timeReservation = document.getElementById("inputTime").value;
+                let reservationByTime;
+                try {
+                    reservationByTime = await getReservationByTime(timeReservation);
+                } catch (error) {
+                    onError("Failed to get reservation by time", error);
+                    return;
+                }
+
+                document.body.appendChild(document.createElement("br"));
+                document.body.appendChild(document.createElement("br"));
+                const table = document.createElement("table");
+                table.setAttribute("border", "1");
+                createHeadTable(table);
+
+                const tbody = document.createElement("tbody");
+                for (let i = 0; i < reservationByTime.length; i++) {
+                    const row = tbody.insertRow();
+
+                    const id = row.insertCell();
+                    id.setAttribute("align", "center");
+                    const idText = document.createTextNode(reservationByTime[i]["id"]);
+                    const idValue = reservationByTime[i]["id"];
+                    id.appendChild(idText);
+
+                    const name = row.insertCell();
+                    name.setAttribute("align", "center");
+                    const nameText = document.createTextNode(reservationByTime[i]["nameCustomer"]);
+                    name.appendChild(nameText);
+
+                    const surname = row.insertCell();
+                    surname.setAttribute("align", "center");
+                    const surnameText = document.createTextNode(reservationByTime[i]["surnameCustomer"]);
+                    surname.appendChild(surnameText);
+
+                    const screening = row.insertCell();
+                    screening.setAttribute("align", "center");
+                    const screeningText = document.createTextNode(reservationByTime[i]["screening"]);
+                    screening.appendChild(screeningText);
+
+                    const date = row.insertCell();
+                    date.setAttribute("align", "center");
+                    const dateText = document.createTextNode(reservationByTime[i]["date"]);
+                    date.appendChild(dateText);
+
+                    const time = row.insertCell();
+                    time.setAttribute("align", "center");
+                    const timeText = document.createTextNode(reservationByTime[i]["time"]);
+                    time.appendChild(timeText);
+
+                    const positions = row.insertCell();
+                    positions.setAttribute("align", "center");
+                    const positionsArray = reservationByTime[i]["positions"];
+                    let positionsText = "";
+                    if (positionsArray != undefined) {
+                        for (let j = 0; j < positionsArray.length; j++) {
+                            positionsText += positionsArray[j] + " ";
+                        }
+                        positions.appendChild(positionsText);
+                    }
+
+                    const actions = row.insertCell();
+                    actions.setAttribute("align", "center");
+                    const editButton = document.createElement("button");
+                    actions.appendChild(editButton);
+                    const editButtonText = document.createTextNode("Modifica");
+                    editButton.appendChild(editButtonText);
+                    editButton.addEventListener("click", () => {
+                        putReservationDOM(idValue, positions);
+                    });
+                    const deleteButton = document.createElement("button");
+                    actions.appendChild(deleteButton);
+                    const deleteButtonText = document.createTextNode("Elimina");
+                    deleteButton.appendChild(deleteButtonText);
+                    deleteButton.addEventListener("click", () => {
+                        deleteReservation(reservationByTime["id"]).then(() => row.remove(),
+                            (error) => onError("Failed to delete reservation", error));
+                    });
 
                     tbody.appendChild(row);
                     table.appendChild(tbody);
@@ -252,46 +473,106 @@
             }
         }
 
-        function createHeadTable() {
+        function createHeadTable(table) {
             const thead = document.createElement("thead");
             const rowHead = thead.insertRow();
 
-            const id = rowHead.insertCell();
+            const id = document.createElement("th");
             id.setAttribute("align", "center");
             const idText = document.createTextNode("ID");
             id.appendChild(idText);
+            rowHead.appendChild(id);
 
-            const name = rowHead.insertCell();
+            const name = document.createElement("th");
             name.setAttribute("align", "center");
             const nameText = document.createTextNode("Nome");
             name.appendChild(nameText);
+            rowHead.appendChild(name);
 
-            const surname = rowHead.insertCell();
+            const surname = document.createElement("th");
             surname.setAttribute("align", "center");
             const surnameText = document.createTextNode("Cognome");
             surname.appendChild(surnameText);
+            rowHead.appendChild(surname);
 
-            const screening = rowHead.insertCell();
+            const screening = document.createElement("th");
             screening.setAttribute("align", "center");
             const screeningText = document.createTextNode("Screening");
             screening.appendChild(screeningText);
+            rowHead.appendChild(screening);
 
-            const date = rowHead.insertCell();
+            const date = document.createElement("th");
             date.setAttribute("align", "center");
             const dateText = document.createTextNode("Data");
             date.appendChild(dateText);
+            rowHead.appendChild(date);
 
-            const time = rowHead.insertCell();
+            const time = document.createElement("th");
             time.setAttribute("align", "center");
             const timeText = document.createTextNode("Orario");
             time.appendChild(timeText);
+            rowHead.appendChild(time);
 
-            const positions = rowHead.insertCell();
+            const positions = document.createElement("th");
             positions.setAttribute("align", "center");
             const positionsText = document.createTextNode("Posti");
             positions.appendChild(positionsText);
+            rowHead.appendChild(positions);
+
+            const actions = document.createElement("th");
+            actions.setAttribute("align", "center");
+            const actionsText = document.createTextNode("Azioni");
+            actions.appendChild(actionsText);
+            rowHead.appendChild(actions);
 
             thead.appendChild(rowHead);
+            table.appendChild(rowHead);
+            document.body.appendChild(table);
+        }
+
+        async function putReservationDOM(id, nameCell) {
+            let reservation;
+            try {
+                reservation = await getReservationById(id);
+            } catch (error) {
+                onError("Failed to get reservation by ID", error);
+                return;
+            }
+
+            const input = document.createElement("input");
+            //input.type = "text";
+            input.setAttribute("type", "text");
+            //input.value = user["name"];
+            input.setAttribute("value", reservation[0]["id"]);
+            // Il campo di testo è sensibile all'evento "keyup", che sarebbe il
+            // rilascio di un tasto della tastiera.
+            input.addEventListener("keyup", async (event) => {
+                if (event.code != "Enter")
+                    return;
+
+                // Se una delle funzioni asincrone da errore allora verrà gestito
+                // dal blocco dentro catch.
+                try {
+                    await putReservation(reservation["id"], input.value);
+
+                    const updatedReservation = await getReservationById(reservation["id"]);
+
+                    let positionsText = "";
+                    for (let i = 0; i < updatedReservation["positions"].length; i++) {
+                        positionsText += updatedReservation["positions"][i] + " ";
+                    }
+                    nameCell.replaceChildren(document.createTextNode(positionsText));
+                } catch (error) {
+                    // Ripristina il vecchio valore.
+                    let positionsText;
+                    for (let i = 0; i < reservation["positions"].length; i++) {
+                        positionsText += reservation["positions"][i] + " ";
+                    }
+                    nameCell.replaceChildren(document.createTextNode(positionsText));
+                    onError("Failed to set reservation seats", error);
+                }
+            });
+            nameCell.replaceChildren(input);
         }
 
         function onError(msg, error) {
