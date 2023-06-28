@@ -20,50 +20,56 @@
         var idScreeningShown = false, dateShown = false, timeShown = false;
 
         function showIdScreeningFilter() {
-            if (idScreeningShown == false) {
-                const labelIdScreening = document.createElement("label");
-                labelIdScreening.innerHTML = "Inserisci l'ID della proiezione";
-                document.body.appendChild(labelIdScreening);
-                document.body.appendChild(document.createElement("br"));
-                const idScreening = document.createElement("input");
-                idScreening.setAttribute("type", "number");
-                idScreening.setAttribute("min", "1");
-                idScreening.setAttribute("id", "inputIdScreening");
-                document.body.appendChild(idScreening);
-                idScreeningShown = true;
-                showButton();
+            const labelIdScreening = document.createElement("label");
+            labelIdScreening.innerHTML = "Inserisci l'ID della proiezione";
+            document.body.appendChild(labelIdScreening);
+            document.body.appendChild(document.createElement("br"));
+            const idScreening = document.createElement("input");
+            idScreening.setAttribute("type", "number");
+            idScreening.setAttribute("min", "1");
+            idScreening.setAttribute("id", "inputIdScreening");
+            document.body.appendChild(idScreening);
+            idScreeningShown = true;
+            const collection = document.getElementsByTagName("a");
+            for (let i = 0; i < collection.length; i++) {
+                collection[i].style = "pointer-events: none";
             }
+            showButton();
         }
 
         function showDateFilter() {
-            if (dateShown == false) {
-                const labelDate = document.createElement("label");
-                labelDate.innerHTML = "Inserisci la data della proiezione";
-                document.body.appendChild(labelDate);
-                document.body.appendChild(document.createElement("br"));
-                const date = document.createElement("input");
-                date.setAttribute("type", "date");
-                date.setAttribute("id", "inputDate");
-                document.body.appendChild(date);
-                dateShown = true;
-                showButton();
+            const labelDate = document.createElement("label");
+            labelDate.innerHTML = "Inserisci la data della prenotazione";
+            document.body.appendChild(labelDate);
+            document.body.appendChild(document.createElement("br"));
+            const date = document.createElement("input");
+            date.setAttribute("type", "date");
+            date.setAttribute("id", "inputDate");
+            document.body.appendChild(date);
+            const collection = document.getElementsByTagName("a");
+            for (let i = 0; i < collection.length; i++) {
+                collection[i].style = "pointer-events: none";
             }
+            dateShown = true;
+            showButton();
         }
 
         function showTimeFilter() {
-            if (timeShown == false) {
-                const labelTime = document.createElement("label");
-                labelTime.innerHTML = "Inserisci l'orario della proiezione";
-                document.body.appendChild(labelTime);
-                document.body.appendChild(document.createElement("br"));
-                const time = document.createElement("input");
-                time.setAttribute("type", "time");
-                time.setAttribute("step", "1");
-                time.setAttribute("id", "inputTime");
-                document.body.appendChild(time);
-                timeShown = true;
-                showButton();
+            const labelTime = document.createElement("label");
+            labelTime.innerHTML = "Inserisci l'orario della prenotazione";
+            document.body.appendChild(labelTime);
+            document.body.appendChild(document.createElement("br"));
+            const time = document.createElement("input");
+            time.setAttribute("type", "time");
+            time.setAttribute("step", "1");
+            time.setAttribute("id", "inputTime");
+            document.body.appendChild(time);
+            const collection = document.getElementsByTagName("a");
+            for (let i = 0; i < collection.length; i++) {
+                collection[i].style = "pointer-events: none";
             }
+            timeShown = true;
+            showButton();
         }
 
         function showButton() {
@@ -72,6 +78,7 @@
             button.appendChild(buttonText);
             document.body.appendChild(button);
             button.addEventListener("click", () => {
+                button.setAttribute("disabled", "true");
                 addReservationsDOM();
             });
         }
@@ -220,6 +227,32 @@
 
         }*/
 
+        async function getHallById(id) {
+        // Bisogna effettuare i seguenti passi:
+        //
+        //	1. Chiamare GET "http://localhost:8080/contacts",
+        //	2. Controllare che la chiamata abbia avuto successo,
+        //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+        // L'interpolazione di stringhe permette di inserire espressioni in un
+        // letterale. Comodo per costruire stringhe speciali.
+        //
+        // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+        const endpoint = `${API_URI}/hall/${id}`;
+
+        // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+        // asincrona, per questo uso await.
+        const response = await fetch(endpoint);
+
+        // Controllo di eventuali errori.
+        if (!response.ok)
+          throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+        // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+        // avviene in modo asicrono, per questo uso "await".
+        return await response.json();
+      }
+
         async function addReservationsDOM() {
             if (idScreeningShown) {
                 const idScreeningReservation = document.getElementById("inputIdScreening").value;
@@ -244,7 +277,7 @@
                     const id = row.insertCell();
                     id.setAttribute("align", "center");
                     const idText = document.createTextNode(reservationByIdScreening[i]["id"]);
-                    const idValue = reservationByIdScreening[i]["id"];
+                    const idReservationValue = reservationByIdScreening[i]["id"];
                     id.appendChild(idText);
 
                     const name = row.insertCell();
@@ -288,7 +321,7 @@
                     const editButtonText = document.createTextNode("Modifica");
                     editButton.appendChild(editButtonText);
                     editButton.addEventListener("click", () => {
-                        putReservationDOM(idValue, positions);
+                        putReservationDOM(idReservationValue, positions);
                     });
                     const deleteButton = document.createElement("button");
                     actions.appendChild(deleteButton);
@@ -313,7 +346,7 @@
                     onError("Failed to get reservation by date", error);
                     return;
                 }
-                //PROBLEMA: LUNGHEZZA 0
+
                 document.body.appendChild(document.createElement("br"));
                 document.body.appendChild(document.createElement("br"));
                 const table = document.createElement("table");
@@ -327,7 +360,7 @@
                     const id = row.insertCell();
                     id.setAttribute("align", "center");
                     const idText = document.createTextNode(reservationByDate[i]["id"]);
-                    const idValue = reservationByDate[i]["id"];
+                    const idReservationValue = reservationByDate[i]["id"];
                     id.appendChild(idText);
 
                     const name = row.insertCell();
@@ -362,7 +395,7 @@
                     for (let j = 0; j < positionsArray.length; j++) {
                         positionsText += positionsArray[j] + " ";
                     }
-                    positions.appendChild(positionsText);
+                    positions.appendChild(document.createTextNode(positionsText));
 
                     const actions = row.insertCell();
                     actions.setAttribute("align", "center");
@@ -371,7 +404,7 @@
                     const editButtonText = document.createTextNode("Modifica");
                     editButton.appendChild(editButtonText);
                     editButton.addEventListener("click", () => {
-                        putReservationDOM(idValue, positions);
+                        putReservationDOM(idReservationValue, positions);
                     });
                     const deleteButton = document.createElement("button");
                     actions.appendChild(deleteButton);
@@ -410,7 +443,7 @@
                     const id = row.insertCell();
                     id.setAttribute("align", "center");
                     const idText = document.createTextNode(reservationByTime[i]["id"]);
-                    const idValue = reservationByTime[i]["id"];
+                    const idReservationValue = reservationByTime[i]["id"];
                     id.appendChild(idText);
 
                     const name = row.insertCell();
@@ -446,7 +479,7 @@
                         for (let j = 0; j < positionsArray.length; j++) {
                             positionsText += positionsArray[j] + " ";
                         }
-                        positions.appendChild(positionsText);
+                        positions.appendChild(document.createTextNode(positionsText));
                     }
 
                     const actions = row.insertCell();
@@ -456,7 +489,7 @@
                     const editButtonText = document.createTextNode("Modifica");
                     editButton.appendChild(editButtonText);
                     editButton.addEventListener("click", () => {
-                        putReservationDOM(idValue, positions);
+                        putReservationDOM(idReservationValue, positions);
                     });
                     const deleteButton = document.createElement("button");
                     actions.appendChild(deleteButton);
@@ -531,10 +564,20 @@
             document.body.appendChild(table);
         }
 
-        async function putReservationDOM(id, nameCell) {
+        async function putReservationDOM(idReservation, nameCell) {
+            //COME RECUPERO HALL?
+            let hallById;
+            const idHallNumber = screening["idHall"];
+            try {
+                hallById = await getHallById(idHallNumber);
+            } catch (error) {
+                onError("Failed to get hall by ID", error);
+                return;
+            }
+
             let reservation;
             try {
-                reservation = await getReservationById(id);
+                reservation = await getReservationById(idReservation);
             } catch (error) {
                 onError("Failed to get reservation by ID", error);
                 return;
@@ -544,7 +587,7 @@
             //input.type = "text";
             input.setAttribute("type", "text");
             //input.value = user["name"];
-            input.setAttribute("value", reservation[0]["id"]);
+            input.setAttribute("value", reservation["positions"]);
             // Il campo di testo è sensibile all'evento "keyup", che sarebbe il
             // rilascio di un tasto della tastiera.
             input.addEventListener("keyup", async (event) => {
@@ -574,6 +617,74 @@
                 }
             });
             nameCell.replaceChildren(input);
+        }
+
+        async function putSeatsDOM(hall) {
+            document.body.appendChild(document.createElement("br"));
+            document.body.appendChild(document.createElement("br"));
+
+            const form = document.createElement("form");
+            form.setAttribute("id", "reservation");
+
+            const table = document.createElement("table");
+            table.setAttribute("border", "1");
+
+            const postiRiga = hall["postiRiga"];
+            const numeroPostiRiga = postiRiga.charCodeAt(0) - 64;
+            const postiColonna = hall["postiColonna"];
+            
+            let tbody = document.createElement("tbody");
+            let rigaValue, colonnaValue, value, contId = 1, checkbox;
+
+            for (let i = 0; i < numeroPostiRiga; i++) {
+            const row = tbody.insertRow();
+            for (let j = 0; j < postiColonna; j++) {
+                const actions = row.insertCell();
+                actions.setAttribute("align", "center");
+                const riga = document.createTextNode(String.fromCharCode(i + 65));
+                actions.appendChild(riga);
+                rigaValue = String.fromCharCode(i + 65);
+                const colonna = document.createTextNode(j + 1);
+                actions.appendChild(colonna);
+                colonnaValue = j + 1;
+                value = rigaValue + colonnaValue;
+                const checkbox = document.createElement("input");
+                checkbox.setAttribute("type", "checkbox");
+                checkbox.setAttribute("value", value);
+                checkbox.setAttribute("id", "checkbox" + contId);
+                contId++;
+                actions.appendChild(checkbox);
+                row.appendChild(actions);
+            }
+
+            tbody.appendChild(row);
+            }
+
+            table.appendChild(tbody);
+            form.appendChild(document.createElement("br"));
+            form.appendChild(document.createElement("br"));
+            form.appendChild(table);
+
+            /*let reservationById;
+            try {
+            reservationById = await getReservationById(idReservationValue);
+            } catch (error) {
+            onError("Failed to get reservation by ID", error);
+            return;
+            }
+
+            const positions = reservationById["positions"];*/
+
+            form.appendChild(document.createElement("br"));
+            const submit = document.createElement("button");
+            const submitText = document.createTextNode("Prenota");
+            submit.appendChild(submitText);
+            form.appendChild(submit);
+            submit.addEventListener("click", () => {
+                newReservationDOM(contId);
+            })
+
+            document.body.appendChild(form);
         }
 
         function onError(msg, error) {
