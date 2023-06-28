@@ -73,7 +73,7 @@ public class MovieResource extends Protocol {
 		}
 
         if(flag == true)
-            return Response.ok(result).build();
+            return Response.ok(result.get(0)).build();
         else
             return Response.status(Response.Status.NOT_FOUND).build();
 
