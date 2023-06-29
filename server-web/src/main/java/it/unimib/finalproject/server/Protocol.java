@@ -16,6 +16,7 @@ public abstract class Protocol {
     public static final String READ_QUERY_COMMAND = "READ-VALUE-QUERY";
     public static final String WRITE_VALUE_COMMAND = "WRITE-VALUE";
     public static final String WRITE_KEY_VALUE_COMMAND = "WRITE-KEY-VALUE";
+    public static final String DELETE_COMMAND = "DELETE";
     public static final String GEN_KEY_COMMAND = "GEN-KEY";
     public static final String TRANSM_DEL = "%";
     public static final String SEP_DEL = ":";

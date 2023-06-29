@@ -114,7 +114,7 @@ public class ReservationResource extends Protocol {
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response PostReservation(String body) {
+    public Response postReservation(String body) {
 
         var reservation = new Reservation();
         System.out.println("POST " + body);
@@ -206,7 +206,7 @@ public class ReservationResource extends Protocol {
      */
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response PutReservation(String body) {
+    public Response putReservation(String body) {
 
         var reservation = new Reservation();
         System.out.println("PUT" + body);
@@ -274,6 +274,59 @@ public class ReservationResource extends Protocol {
             System.out.println(e);
             return Response.serverError().build();
         }
+
+    }
+
+    /**
+     * Implementazione di DELETE "/reservation/{id}".
+     */
+    @DELETE
+    @Path("/{id}")
+    public Response deleteReservation(@PathParam("id") String id) {
+        System.out.println("ssss");
+        PrintWriter out;
+        BufferedReader in;
+        int flag = 2;
+    	try {
+
+            socketDB = new Socket("localhost", DB_PORT);
+            System.out.println("Connected");
+            out = new PrintWriter(socketDB.getOutputStream());
+            in = new BufferedReader(new InputStreamReader(socketDB.getInputStream()));
+
+            String command = DELETE_COMMAND + TRANSM_DEL + id;
+
+            out.println(command);
+            out.println(".");
+            out.flush();
+
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+            	System.out.println("Read-Response: " + inputLine);
+
+                if(inputLine.startsWith("DONE"))
+                    flag = 1;
+                else if(inputLine.startsWith("NOT-FOUND"))
+                    flag = 2;
+
+                if (".".equals(inputLine)) {
+                    break;
+                }
+            }
+
+            in.close();
+            out.close();
+            socketDB.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+            return Response.serverError().build();
+		}
+
+        if (flag == 1)
+            return Response.status(204).build();
+        else
+            return Response.status(Response.Status.NOT_FOUND).build();
 
     }
 }

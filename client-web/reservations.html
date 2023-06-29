@@ -161,13 +161,13 @@
             return await response.json();
         }
 
-        async function putReservation(id, value) {
+        async function putReservation(updatedReservation) {
             // Bisogna effettuare i seguenti passi:
             //
             //	1. Chiamare PUT "http://localhost:8080/users/{userId}" con
             //		 nel body la rappresentazione JSON di una stringa,
             //	2. Controllare che la chiamata abbia avuto successo.
-            const endpoint = `${API_URI}/reservation?id=${id}`;
+            const endpoint = `${API_URI}/reservation`;
 
             // In questo caso nella fetch devo passare delle opzioni:
             //	* method: per indicare il metodo utilizzato,
@@ -178,7 +178,7 @@
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(value)
+                body: JSON.stringify(updatedReservation)
             });
 
             if (!response.ok)
@@ -747,7 +747,8 @@
 
         async function tryPutSeats(reservedSeats, reservation, nameCell) {
             try {
-                await putReservation(reservation["id"], reservedSeats);
+                reservation["positions"] = reservedSeats;
+                await putReservation(reservation);
 
                 const updatedReservation = await getReservationById(reservation["id"]);
 
@@ -763,7 +764,7 @@
                     positionsText += reservation["positions"][i] + " ";
                 }
                 nameCell.replaceChildren(document.createTextNode(positionsText));
-                onError("Failed to set reservation seats", error);
+                onError("Failed to update reservation seats", error);
             }
         }
 
