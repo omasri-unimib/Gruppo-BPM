@@ -3,7 +3,7 @@
 # TCP Protocol (Database)
 ## Commands
 
-#### READ-VALUE
+#### `READ-VALUE`
 	READ-VALUE%<key>
     Response:
      - <key>:<value>
@@ -13,7 +13,7 @@
 
 
 
-#### READ-VALUE-IF-CONTAINS
+#### `READ-VALUE-IF-CONTAINS`
 	READ-VALUE-IF-CONTAINS%<string to search>#<start position>
     Response:
      - <key 1>:<value 1>%...%<key N>:<value N>
@@ -23,7 +23,7 @@
 
 
 
-#### READ-VALUE-QUERY
+#### `READ-VALUE-QUERY`
 	READ-VALUE-QUERY%<delimiter>%<position>%<EQ | LT | GT | LTE | GTE>%<value>{%<position>%<EQ | LT | GT LTE | GTE>%<value>}
     Response:
      - <key 1>:<value 1>%...%<key N>:<value N>
@@ -34,7 +34,7 @@
 
 
 
-#### WRITE-VALUE
+#### `WRITE-VALUE`
     WRITE-VALUE%<value>
 	Responses: 
 	 - CREATED%<key> 
@@ -44,7 +44,7 @@
 
 
 
-#### WRITE-KEY-VALUE
+#### `WRITE-KEY-VALUE`
 	WRITE-KEY-VALUE%<key>%<value>
 	Responses: 
 	 - CREATED%<key> 
@@ -54,7 +54,7 @@
 
 
 
-#### GEN-KEY
+#### `GEN-KEY`
 	GEN-KEY
     Response: 
      - <key>
@@ -63,7 +63,7 @@
 
 
 
-#### DELETE
+#### `DELETE`
 	DELETE%<key>
     Response: 
      - DONE
