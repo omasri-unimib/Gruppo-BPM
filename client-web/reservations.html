@@ -211,7 +211,7 @@
             return await response.json();
         }
 
-        /*async function deleteReservation(id) {
+        async function deleteReservation(id) {
             // Bisogna effettuare i seguenti passi:
             //
             //	1. Chiamare DELETE "http://localhost:8080/users/{userId}",
@@ -225,7 +225,7 @@
             if (!response.ok)
                 throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
 
-        }*/
+        }
 
         async function getHallById(id) {
             // Bisogna effettuare i seguenti passi:
@@ -321,15 +321,6 @@
                     const screeningText = document.createTextNode(reservationByIdScreening[i]["screening"]);
                     screening.appendChild(screeningText);
 
-                    /* const idScreeningValue = reservationByIdScreening[i]["screening"];
-                    let screeningById;
-                    try {
-                        screeningById = await getScreeningById(idScreeningValue);
-                    } catch (error) {
-                        onError("Failed to get screening by ID", error);
-                        return;
-                    } */
-
                     const date = row.insertCell();
                     date.setAttribute("align", "center");
                     const dateText = document.createTextNode(reservationByIdScreening[i]["date"]);
@@ -359,12 +350,13 @@
                         editButton.setAttribute("disabled", "true");
                         putReservationDOM(idReservationValue, positions, idScreeningReservation);
                     });
+
                     const deleteButton = document.createElement("button");
                     actions.appendChild(deleteButton);
                     const deleteButtonText = document.createTextNode("Elimina");
                     deleteButton.appendChild(deleteButtonText);
                     deleteButton.addEventListener("click", () => {
-                        deleteReservation(reservationByIdScreening["id"]).then(() => row.remove(),
+                        deleteReservation(reservationByIdScreening[i]["id"]).then(() => row.remove(),
                             (error) => onError("Failed to delete reservation", error));
                     });
 
@@ -449,7 +441,7 @@
                     const deleteButtonText = document.createTextNode("Elimina");
                     deleteButton.appendChild(deleteButtonText);
                     deleteButton.addEventListener("click", () => {
-                        deleteReservation(reservationByDate["id"]).then(() => row.remove(),
+                        deleteReservation(reservationByDate[i]["id"]).then(() => row.remove(),
                             (error) => onError("Failed to delete reservation", error));
                     });
 
@@ -534,7 +526,7 @@
                     const deleteButtonText = document.createTextNode("Elimina");
                     deleteButton.appendChild(deleteButtonText);
                     deleteButton.addEventListener("click", () => {
-                        deleteReservation(reservationByTime["id"]).then(() => row.remove(),
+                        deleteReservation(reservationByTime[i]["id"]).then(() => row.remove(),
                             (error) => onError("Failed to delete reservation", error));
                     });
 
@@ -611,7 +603,6 @@
                 return;
             }
 
-            //COME RECUPERO HALL?
             let hallById;
             const idHallNumber = screeningById["idHall"];
             try {
@@ -622,41 +613,6 @@
             }
 
             putSeatsDOM(hallById, nameCell, idReservation);
-
-            /*
-            const input = document.createElement("input");
-            //input.type = "text";
-            input.setAttribute("type", "text");
-            //input.value = user["name"];
-            input.setAttribute("value", reservation["positions"]);
-            // Il campo di testo è sensibile all'evento "keyup", che sarebbe il
-            // rilascio di un tasto della tastiera.
-            input.addEventListener("keyup", async (event) => {
-                if (event.code != "Enter")
-                    return;
-
-                // Se una delle funzioni asincrone da errore allora verrà gestito
-                // dal blocco dentro catch.
-                try {
-                    await putReservation(reservation["id"], input.value);
-
-                    const updatedReservation = await getReservationById(reservation["id"]);
-
-                    let positionsText = "";
-                    for (let i = 0; i < updatedReservation["positions"].length; i++) {
-                        positionsText += updatedReservation["positions"][i] + " ";
-                    }
-                    nameCell.replaceChildren(document.createTextNode(positionsText));
-                } catch (error) {
-                    // Ripristina il vecchio valore.
-                    let positionsText;
-                    for (let i = 0; i < reservation["positions"].length; i++) {
-                        positionsText += reservation["positions"][i] + " ";
-                    }
-                    nameCell.replaceChildren(document.createTextNode(positionsText));
-                    onError("Failed to set reservation seats", error);
-                }
-            });*/
         }
 
         async function putSeatsDOM(hall, nameCell, idReservation) {
@@ -674,27 +630,27 @@
             let rigaValue, colonnaValue, value, contId = 1, checkbox;
 
             for (let i = 0; i < numeroPostiRiga; i++) {
-            const row = tbody.insertRow();
-            for (let j = 0; j < postiColonna; j++) {
-                const actions = row.insertCell();
-                actions.setAttribute("align", "center");
-                const riga = document.createTextNode(String.fromCharCode(i + 65));
-                actions.appendChild(riga);
-                rigaValue = String.fromCharCode(i + 65);
-                const colonna = document.createTextNode(j + 1);
-                actions.appendChild(colonna);
-                colonnaValue = j + 1;
-                value = rigaValue + colonnaValue;
-                const checkbox = document.createElement("input");
-                checkbox.setAttribute("type", "checkbox");
-                checkbox.setAttribute("value", value);
-                checkbox.setAttribute("id", "checkbox" + contId);
-                contId++;
-                actions.appendChild(checkbox);
-                row.appendChild(actions);
-            }
+                const row = tbody.insertRow();
+                for (let j = 0; j < postiColonna; j++) {
+                    const actions = row.insertCell();
+                    actions.setAttribute("align", "center");
+                    const riga = document.createTextNode(String.fromCharCode(i + 65));
+                    actions.appendChild(riga);
+                    rigaValue = String.fromCharCode(i + 65);
+                    const colonna = document.createTextNode(j + 1);
+                    actions.appendChild(colonna);
+                    colonnaValue = j + 1;
+                    value = rigaValue + colonnaValue;
+                    const checkbox = document.createElement("input");
+                    checkbox.setAttribute("type", "checkbox");
+                    checkbox.setAttribute("value", value);
+                    checkbox.setAttribute("id", "checkbox" + contId);
+                    contId++;
+                    actions.appendChild(checkbox);
+                    row.appendChild(actions);
+                }
 
-            tbody.appendChild(row);
+                tbody.appendChild(row);
             }
 
             table.appendChild(tbody);
@@ -709,8 +665,6 @@
                 onError("Failed to get reservation by ID", error);
                 return;
             }
-
-            //const positions = reservationById["positions"];
 
             form.appendChild(document.createElement("br"));
             const submit = document.createElement("button");
@@ -734,15 +688,13 @@
 
             document.body.appendChild(form);
 
-            /*let reservation;
-            try {
-                reservation = await getReservationById(idReservation);
-            } catch (error) {
-                onError("Failed to get reservation by ID", error);
-                return;
-            }*/
-
-            //nameCell.replaceChildren(input);//INPUT UNDEFINED
+            for (let i = 1; i < contId; i++) {
+                for (let j = 0; j < reservationById["positions"].length; j++) {
+                    if (document.getElementById("checkbox" + i).value == reservationById["positions"][j]) {
+                        document.getElementById("checkbox" + i).disabled = true;
+                    }
+                }
+            }
         }
 
         async function tryPutSeats(reservedSeats, reservation, nameCell) {

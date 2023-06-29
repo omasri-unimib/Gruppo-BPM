@@ -281,39 +281,6 @@
         alert(out);
       }
 
-      // newContactDOM viene eseguita all'invio del from. Aggiunge un nuovo
-      // contatto, prima inviandolo al server e poi mettendolo nella tabella.
-      async function newContactDOM(event) {
-        // Evito che il form venga davvero inviato.
-        event.preventDefault();
-
-        // Recuperi i dati da inviare dal form.
-        const name = document.getElementById("input-name");
-        const number = document.getElementById("input-number");
-        let contact = {
-          "name": name.value,
-          "number": number.value
-        };
-
-        // Pulisco i campi del form, ormai non servono più.
-        name.value = "";
-        number.value = "";
-
-        try {
-          // Creo il nuovo oggetto e lo invio al server, restituisce il
-          // nuovo ID.
-          contact["id"] = await newContact(contact)
-
-          // Ottengo il nuovo contatto con tutte le informazioni.
-          contact = await getContact(contact["id"]);
-
-          // Infine lo aggiungo alla tabella.
-          addContactDOM(contact);
-        } catch (error) {
-          onError("Failed to add a new user", error);
-        }
-      }
-
       // addContactDOM aggiunge il contatto fornito in una nuova riga della tabella.
       async function addScreeningDOM(screening) {
         // Selezione di <tbody> e aggiunta di una nuova riga.
@@ -395,18 +362,8 @@
         const hallText = document.createTextNode(hallById["name"]);
         hall.appendChild(hallText);
 
-        //INUTILE?
-        let screeningById;
-        try {
-          screeningById = await getScreeningById(idValue);
-        } catch (error) {
-          onError("Failed to get screening by ID", error);
-          return;
-        }
-
         const actions = row.insertCell();
         actions.setAttribute("align", "center");
-        //actions.setAttribute("onclick", "window.location.href='seatsReservation.html';")
         const reservationButton = document.createElement("button");
         actions.appendChild(reservationButton);
         const reservationText = document.createTextNode("Prenota");
@@ -435,7 +392,7 @@
         return time;
       }
 
-      async function reserveSeatsDOM(hall) {//QUI DISABILITO I CHECKBOX
+      async function reserveSeatsDOM(hall) {
         document.body.appendChild(document.createElement("br"));
         document.body.appendChild(document.createElement("br"));
 
@@ -493,16 +450,6 @@
         form.appendChild(document.createElement("br"));
         form.appendChild(table);
 
-        /*let reservationById;
-        try {
-          reservationById = await getReservationById(idValue);
-        } catch (error) {
-          onError("Failed to get reservation by ID", error);
-          return;
-        }
-
-        const positions = reservationById["positions"];*/
-
         form.appendChild(document.createElement("br"));
         const submit = document.createElement("button");
         const submitText = document.createTextNode("Prenota");
@@ -536,11 +483,6 @@
             "time": timeValue,
             "positions": reservedSeats
           });
-
-          //ottengo la nuova prenotazione
-          //const reservation = await getReservationByidHall(reservationId);
-          // Infine lo aggiungo alla tabella.
-          //addUserDOM(user);
         } catch (error) {
           onError("Failed to add a new reservation", error);
         }
