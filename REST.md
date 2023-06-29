@@ -144,6 +144,22 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 * 404 Not Found (Prenotazione non trovata)
 * 500 Internal Server Error
 
+### DELETE
+
+**Descrizione**: Elimina la Prenotazione identificata dal'id fornito.
+
+**Parametri**: un path paramteter `id` che rappresenta l'identificativo della Prenotazione da eliminare.
+
+**Body richiesta**: vuoto.
+
+**Risposta**: nulla.
+
+**Codici di stato restituiti**:
+
+* 204 No Content (Prenotazione eliminata con successo)
+* 404 Not Found (Prenotazione non trovata)
+* 500 Internal Server Error
+
 ## Proiezione
 
 ## `/screening`
