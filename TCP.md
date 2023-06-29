@@ -60,6 +60,16 @@
      - <key>
      
     Example: GEN-KEY
+
+
+
+#### DELETE
+	DELETE%<key>
+    Response: 
+     - DONE
+     - NOT-FOUND
+     
+    Example: DELETE%123
     
     
 # Proposta Formato Dati nel Database (NON COMPLETO!)

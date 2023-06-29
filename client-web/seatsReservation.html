@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prenotazione posti</title>
+</head>
+<body>
+  <script>
+    async function getHall(id) {
+      // Bisogna effettuare i seguenti passi:
+      //
+      //	1. Chiamare GET "http://localhost:8080/contacts",
+      //	2. Controllare che la chiamata abbia avuto successo,
+      //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+      // L'interpolazione di stringhe permette di inserire espressioni in un
+      // letterale. Comodo per costruire stringhe speciali.
+      //
+      // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+      const endpoint = `${API_URI}/hall/${id}`;
+
+      // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+      // asincrona, per questo uso await.
+      const response = await fetch(endpoint);
+
+      // Controllo di eventuali errori.
+      if (!response.ok)
+        throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+      // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+      // avviene in modo asicrono, per questo uso "await".
+      return await response.json();
+    }
+
+    function reserveSeatsDOM(hall) {
+      const table = document.createElement("table");
+      table.setAttribute("border", "1");
+
+      const postiRiga = hall["postiRiga"];
+      const numeroPostiRiga = postiRiga.charCodeAt(0) - 64;
+      const postiColonna = hall["postiColonna"];
+      
+      let tbody = document.createElement("tbody");
+      let rigaValue, colonnaValue, value, contId = 1, checkbox;
+
+      for (let i = 0; i < numeroPostiRiga; i++) {
+        const row = tbody.insertRow();
+        for (let j = 0; j < postiColonna; j++) {
+          const actions = row.insertCell();
+          actions.setAttribute("align", "center");
+          //ASSEGNARE RIGA-COLONNA AL CHECKBOX
+          const riga = document.createTextNode(String.fromCharCode(i + 65));
+          actions.appendChild(riga);
+          rigaValue = String.fromCharCode(i + 65);
+          const colonna = document.createTextNode(j + 1);
+          actions.appendChild(colonna);
+          colonnaValue = j + 1;
+          value = rigaValue + colonnaValue;
+          const checkbox = document.createElement("input");
+          checkbox.setAttribute("type", "checkbox");
+          checkbox.setAttribute("value", value);
+          checkbox.setAttribute("id", "checkbox" + contId);
+          contId++;
+          actions.appendChild(checkbox);
+          row.appendChild(actions);
+        }
+
+        tbody.appendChild(row);
+      }
+
+      table.appendChild(tbody);
+      document.body.appendChild(table);
+
+      const submit = document.createElement("button");
+      const submitText = document.createTextNode("Prenota");
+      submit.appendChild(submitText);
+      document.body.appendChild(submit);
+      submit.addEventListener("click", () => {
+        reserveSeats(contId);
+      })
+    }
+
+  function reserveSeats(contId) {
+    for (let i = 1; i < contId; i++) {
+      if (document.getElementById("checkbox" + i).checked == true) {
+        document.getElementById("checkbox" + i).disabled = true;
+      }
+    }
+  }
+
+  window.onload = reserveSeatsDOM();
+  </script>
+</body>
+</html>

@@ -2,43 +2,39 @@
 <html>
 
   <head>
-    <title>Subscribed Users</title>
+    <title>Cinema Multisala</title>
+    <link rel="stylesheet" href="style.css">
   </head>
 
   <body>
-    <h2>Add a new contact</h2>
-
-    <form id="add-contact" action="/contacts" method="POST">
-      <label for="input-name">Name: </label>
-      <input type="text" id="input-name" required>
-      <p />
-      <label for="input-number">Number: </label>
-      <input type="text" id="input-number" required>
-      <p />
-      <input type="submit" value="Subscribe!">
-    </form>
-
-    <hr />
-
-    <h2>Contact list</h2>
+    <h2>Prossime proiezioni</h2>
 
     <table border="1">
       <thead>
         <tr>
           <th>ID</th>
-          <th>Name</th>
-          <th>Number</th>
+          <th>ID Hall</th>
+          <th>Film</th>
+          <th>Data</th>
+          <th>Orario</th>
+          <th>Sala</th>
+          <th>Posti</th>
         </tr>
       </thead>
       <tbody id="table-body">
 
       </tbody>
     </table>
+
+    <br><br>
+    <a href="reservations.html">Filtra prenotazioni</a>
     <script>
+      let idHallValue, dateValue, timeValue, idValue;
+
       const API_URI = "http://localhost:8080";
 
       // getUsers restituisce i contatti nella rubrica telefonica.
-      async function getContacts() {
+      async function getScreenings() {
         // Bisogna effettuare i seguenti passi:
         //
         //	1. Chiamare GET "http://localhost:8080/contacts",
@@ -49,7 +45,7 @@
         // letterale. Comodo per costruire stringhe speciali.
         //
         // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
-        const endpoint = `${API_URI}/contacts`;
+        const endpoint = `${API_URI}/screening`;
 
         // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
         // asincrona, per questo uso await.
@@ -63,6 +59,168 @@
         // avviene in modo asicrono, per questo uso "await".
         return await response.json();
       }
+
+      async function getScreeningById(id) {
+        // Bisogna effettuare i seguenti passi:
+        //
+        //	1. Chiamare GET "http://localhost:8080/contacts",
+        //	2. Controllare che la chiamata abbia avuto successo,
+        //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+        // L'interpolazione di stringhe permette di inserire espressioni in un
+        // letterale. Comodo per costruire stringhe speciali.
+        //
+        // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+        const endpoint = `${API_URI}/screening/${id}`;
+
+        // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+        // asincrona, per questo uso await.
+        const response = await fetch(endpoint);
+
+        // Controllo di eventuali errori.
+        if (!response.ok)
+          throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+        // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+        // avviene in modo asicrono, per questo uso "await".
+        return await response.json();
+      }
+
+      async function getMovieById(id) {
+        // Bisogna effettuare i seguenti passi:
+        //
+        //	1. Chiamare GET "http://localhost:8080/contacts",
+        //	2. Controllare che la chiamata abbia avuto successo,
+        //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+        // L'interpolazione di stringhe permette di inserire espressioni in un
+        // letterale. Comodo per costruire stringhe speciali.
+        //
+        // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+        const endpoint = `${API_URI}/movie/${id}`;
+
+        // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+        // asincrona, per questo uso await.
+        const response = await fetch(endpoint);
+
+        // Controllo di eventuali errori.
+        if (!response.ok)
+          throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+        // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+        // avviene in modo asicrono, per questo uso "await".
+        return await response.json();
+      }
+
+      async function getHalls() {
+        // Bisogna effettuare i seguenti passi:
+        //
+        //	1. Chiamare GET "http://localhost:8080/contacts",
+        //	2. Controllare che la chiamata abbia avuto successo,
+        //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+        // L'interpolazione di stringhe permette di inserire espressioni in un
+        // letterale. Comodo per costruire stringhe speciali.
+        //
+        // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+        const endpoint = `${API_URI}/hall`;
+
+        // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+        // asincrona, per questo uso await.
+        const response = await fetch(endpoint);
+
+        // Controllo di eventuali errori.
+        if (!response.ok)
+          throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+        // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+        // avviene in modo asicrono, per questo uso "await".
+        return await response.json();
+      }
+
+      async function getHallById(id) {
+        // Bisogna effettuare i seguenti passi:
+        //
+        //	1. Chiamare GET "http://localhost:8080/contacts",
+        //	2. Controllare che la chiamata abbia avuto successo,
+        //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+        // L'interpolazione di stringhe permette di inserire espressioni in un
+        // letterale. Comodo per costruire stringhe speciali.
+        //
+        // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+        const endpoint = `${API_URI}/hall/${id}`;
+
+        // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+        // asincrona, per questo uso await.
+        const response = await fetch(endpoint);
+
+        // Controllo di eventuali errori.
+        if (!response.ok)
+          throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+        // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+        // avviene in modo asicrono, per questo uso "await".
+        return await response.json();
+      }
+
+      async function newReservation(reservation) {
+        // Bisogna effettuare i seguenti passi:
+        //
+        //	1. Chiamare POST "http://localhost:8080/contacts" con
+        //		 nel body la rappresentazione JSON del nuovo utente,
+        //	2. Controllare che la chiamata abbia avuto successo,
+        //	3. Controllare l'header "Location", estrarre l'ID alla fine
+        //		 e restituirlo.
+        const endpoint = `${API_URI}/reservation`;
+
+        // In questo caso nella fetch devo passare delle opzioni:
+        //	* method: per indicare il metodo utilizzato,
+        //	* headers: gli header utilizati,
+        //	* body: il body della richiesta.
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(reservation)
+        });
+
+        if (!response.ok)
+          throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+        const location = response.headers.get("Location");
+
+        // Fa lo split e restituisce l'ultima sottostringa, che è l'ID.
+        return location.split("/").pop();
+
+      }
+
+      async function getReservationById(id) {
+            // Bisogna effettuare i seguenti passi:
+            //
+            //	1. Chiamare GET "http://localhost:8080/contacts",
+            //	2. Controllare che la chiamata abbia avuto successo,
+            //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+            // L'interpolazione di stringhe permette di inserire espressioni in un
+            // letterale. Comodo per costruire stringhe speciali.
+            //
+            // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+            const endpoint = `${API_URI}/reservation/${id}`;
+
+            // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+            // asincrona, per questo uso await.
+            const response = await fetch(endpoint);
+
+            // Controllo di eventuali errori.
+            if (!response.ok)
+                throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+            // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+            // avviene in modo asicrono, per questo uso "await".
+            return await response.json();
+        }
 
       // getContact restituisce il singolo contatto.
       async function getContact(id) {
@@ -157,7 +315,7 @@
       }
 
       // addContactDOM aggiunge il contatto fornito in una nuova riga della tabella.
-      function addContactDOM(contact) {
+      async function addScreeningDOM(screening) {
         // Selezione di <tbody> e aggiunta di una nuova riga.
         const tbody = document.getElementById("table-body");
         const row = tbody.insertRow();
@@ -165,20 +323,207 @@
         // Aggiunta dell'ID.
         const id = row.insertCell();
         id.setAttribute("align", "center");
-        const idText = document.createTextNode(contact["id"]);
+        const idText = document.createTextNode(screening["id"]);
+        idValue = screening["id"];
         id.appendChild(idText);
 
         // Aggiunta del nome.
-        const name = row.insertCell();
-        name.setAttribute("align", "center");
-        const nameText = document.createTextNode(contact["name"]);
-        name.appendChild(nameText);
+        const idHall = row.insertCell();
+        idHall.setAttribute("align", "center");
+        const idHallText = document.createTextNode(screening["idHall"]);
+        idHallValue = screening["idHall"];
+        idHall.appendChild(idHallText);
 
         // Aggiunta del numero.
-        const number = row.insertCell();
-        number.setAttribute("align", "center");
-        const numberText = document.createTextNode(contact["number"]);
-        number.appendChild(numberText);
+        const film = row.insertCell();
+        film.setAttribute("align", "left");
+        const idMovie = screening["idMovie"];
+        let movie;
+        try {
+          movie = await getMovieById(idMovie);
+        } catch (error) {
+          onError("Failed to get movie", error);
+          return;
+        }
+        const keyNameText = document.createTextNode("Nome: ");
+        const nameText = document.createTextNode(movie["name"]);
+        film.appendChild(keyNameText);
+        film.appendChild(nameText);
+        film.appendChild(document.createElement("br"));
+        const keyGenreText = document.createTextNode("Genere: ");
+        const genreText = document.createTextNode(movie["genre"]);
+        film.appendChild(keyGenreText);
+        film.appendChild(genreText);
+        film.appendChild(document.createElement("br"));
+        const keyDirectorText = document.createTextNode("Direttore: ");
+        const directorText = document.createTextNode(movie["director"]);
+        film.appendChild(keyDirectorText);
+        film.appendChild(directorText);
+        film.appendChild(document.createElement("br"));
+        const keyDurationText = document.createTextNode("Durata: ");
+        const durationText = document.createTextNode(movie["duration"]);
+        film.appendChild(keyDurationText);
+        film.appendChild(durationText);
+
+        const date = row.insertCell();
+        date.setAttribute("align", "center");
+        const dateText = document.createTextNode(screening["date"]);
+        date.appendChild(dateText);
+
+        var currentDate = new Date();
+        dateValue = currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1) + '-' + currentDate.getDate();
+
+        const time = row.insertCell();
+        time.setAttribute("align", "center");
+        const timeText = document.createTextNode(screening["time"]);
+        time.appendChild(timeText);
+
+        timeValue = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds();
+
+        const hall = row.insertCell();
+        hall.setAttribute("align", "center");
+        let hallById;
+        const idHallNumber = screening["idHall"];
+        try {
+          hallById = await getHallById(idHallNumber);
+        } catch (error) {
+          onError("Failed to get hall by ID", error);
+          return;
+        }
+        const hallText = document.createTextNode(hallById["name"]);
+        hall.appendChild(hallText);
+
+        //INUTILE?
+        let screeningById;
+        try {
+          screeningById = await getScreeningById(idValue);
+        } catch (error) {
+          onError("Failed to get screening by ID", error);
+          return;
+        }
+
+        const actions = row.insertCell();
+        actions.setAttribute("align", "center");
+        //actions.setAttribute("onclick", "window.location.href='seatsReservation.html';")
+        const reservationButton = document.createElement("button");
+        actions.appendChild(reservationButton);
+        const reservationText = document.createTextNode("Prenota");
+        reservationButton.appendChild(reservationText);
+        reservationButton.addEventListener("click", () => {
+          reservationButton.setAttribute("disabled", "true");
+          reserveSeatsDOM(hallById);
+        });
+      }
+
+      async function reserveSeatsDOM(hall) {//QUI DISABILITO I CHECKBOX
+        document.body.appendChild(document.createElement("br"));
+        document.body.appendChild(document.createElement("br"));
+
+        const form = document.createElement("form");
+        form.setAttribute("id", "reservation");
+        const inputName = document.createElement("input");
+        inputName.setAttribute("type", "text");
+        inputName.setAttribute("id", "inputName");
+        inputName.setAttribute("placeholder", "Inserisci il tuo nome");
+        form.appendChild(inputName);
+        form.appendChild(document.createElement("br"));
+        form.appendChild(document.createElement("br"));
+        const inputSurname = document.createElement("input");
+        inputSurname.setAttribute("type", "text");
+        inputSurname.setAttribute("id", "inputSurname");
+        inputSurname.setAttribute("placeholder", "Inserisci il tuo cognome");
+        form.appendChild(inputSurname);
+
+        const table = document.createElement("table");
+        table.setAttribute("border", "1");
+
+        const postiRiga = hall["postiRiga"];
+        const numeroPostiRiga = postiRiga.charCodeAt(0) - 64;
+        const postiColonna = hall["postiColonna"];
+        
+        let tbody = document.createElement("tbody");
+        let rigaValue, colonnaValue, value, contId = 1, checkbox;
+
+        for (let i = 0; i < numeroPostiRiga; i++) {
+          const row = tbody.insertRow();
+          for (let j = 0; j < postiColonna; j++) {
+            const actions = row.insertCell();
+            actions.setAttribute("align", "center");
+            const riga = document.createTextNode(String.fromCharCode(i + 65));
+            actions.appendChild(riga);
+            rigaValue = String.fromCharCode(i + 65);
+            const colonna = document.createTextNode(j + 1);
+            actions.appendChild(colonna);
+            colonnaValue = j + 1;
+            value = rigaValue + colonnaValue;
+            const checkbox = document.createElement("input");
+            checkbox.setAttribute("type", "checkbox");
+            checkbox.setAttribute("value", value);
+            checkbox.setAttribute("id", "checkbox" + contId);
+            contId++;
+            actions.appendChild(checkbox);
+            row.appendChild(actions);
+          }
+
+          tbody.appendChild(row);
+        }
+
+        table.appendChild(tbody);
+        form.appendChild(document.createElement("br"));
+        form.appendChild(document.createElement("br"));
+        form.appendChild(table);
+
+        /*let reservationById;
+        try {
+          reservationById = await getReservationById(idValue);
+        } catch (error) {
+          onError("Failed to get reservation by ID", error);
+          return;
+        }
+
+        const positions = reservationById["positions"];*/
+
+        form.appendChild(document.createElement("br"));
+        const submit = document.createElement("button");
+        const submitText = document.createTextNode("Prenota");
+        submit.appendChild(submitText);
+        form.appendChild(submit);
+        submit.addEventListener("click", () => {
+          newReservationDOM(contId);
+        })
+
+        document.body.appendChild(form);
+      }
+
+      async function newReservationDOM(contId) {
+        const name = document.getElementById("inputName").value;
+        const surname = document.getElementById("inputSurname").value;
+        let reservedSeats = [];
+
+        for (let i = 1; i < contId; i++) {
+          if (document.getElementById("checkbox" + i).checked == true) {
+            reservedSeats.push(document.getElementById("checkbox" + i).value);
+            document.getElementById("checkbox" + i).disabled = true;
+          }
+        }
+
+        try {
+          const reservationId = await newReservation({
+            "nameCustomer": name,
+            "surnameCustomer": surname,
+            "screening": idHallValue,
+            "date": dateValue,
+            "time": timeValue,
+            "positions": reservedSeats
+          });
+
+          //ottengo la nuova prenotazione
+          //const reservation = await getReservationByidHall(reservationId);
+          // Infine lo aggiungo alla tabella.
+          //addUserDOM(user);
+        } catch (error) {
+          onError("Failed to add a new reservation", error);
+        }
       }
 
       // Ho definito init come una funzione asincrona, per cui l'esecuzione è slegata
@@ -190,12 +535,12 @@
         // getUsers è asincrona, per cui restituisce una Promise che verrà eseguita
         // in modo asincrono. Il metodo then permette di eseguire due funzioni: la
         // prima in caso di successo, la seconda in caso di errore.
-        getContacts().then((users) => users.forEach(addContactDOM),
+        getScreenings().then((screening) => screening.forEach(addScreeningDOM),
           (error) => onError("Failed to get users", error));
 
         // Aggiungo l'handler per l'evento di invio al form.
-        const form = document.getElementById("add-contact");
-        form.addEventListener("submit", newContactDOM);
+        //const form = document.getElementById("add-contact");
+        //form.addEventListener("submit", newContactDOM);
       }
 
     </script>
