@@ -8,6 +8,8 @@
 
   <body>
     <h2>Prossime proiezioni</h2>
+    <a href="reservations.html">Filtra prenotazioni</a>
+    <br><br><br>
 
     <table border="1">
       <thead>
@@ -26,8 +28,6 @@
       </tbody>
     </table>
 
-    <br><br>
-    <a href="reservations.html">Filtra prenotazioni</a>
     <script>
       let idHallValue, dateValue, timeValue, idValue;
 
@@ -361,7 +361,9 @@
         film.appendChild(directorText);
         film.appendChild(document.createElement("br"));
         const keyDurationText = document.createTextNode("Durata: ");
-        const durationText = document.createTextNode(movie["duration"]);
+        const duration = movie["duration"];
+        const durationTime = convertDurationToTime(duration);
+        const durationText = document.createTextNode(durationTime);
         film.appendChild(keyDurationText);
         film.appendChild(durationText);
 
@@ -413,6 +415,24 @@
           reservationButton.setAttribute("disabled", "true");
           reserveSeatsDOM(hallById);
         });
+      }
+
+      function convertDurationToTime(duration) {
+        var hour = Math.floor(duration);
+        var decimalPart = duration - hour;
+
+        var min = 1 / 60;
+        decimalPart = min * Math.round(decimalPart / min);
+
+        var minute = Math.floor(decimalPart * 60) + '';
+
+        if (minute.length < 2) {
+          minute = '0' + minute; 
+        }
+
+        time = hour + ':' + minute;
+
+        return time;
       }
 
       async function reserveSeatsDOM(hall) {//QUI DISABILITO I CHECKBOX
@@ -490,7 +510,7 @@
         form.appendChild(submit);
         submit.addEventListener("click", () => {
           newReservationDOM(contId);
-        })
+        });
 
         document.body.appendChild(form);
       }
