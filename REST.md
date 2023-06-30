@@ -1,12 +1,11 @@
 # Progetto Sistemi Distribuiti 2022-2023 - API REST
 
-Documentazione delle API REST di esempio. Si assume che i dati vengano scambiati in formato JSON.
 
 ## Prenotazioni
 
-## `/reservation` 
+### `/reservation` 
 
-### GET
+#### GET
 
 **Descrizione**: Restituisce l'elenco delle Prenotazioni
 
@@ -49,7 +48,7 @@ E.G.)
 * 400 Bad Request (parametri non validi)
 * 500 Internal Server Error
 
-### POST
+#### POST
 
 **Descrizione**: Aggiunge una Prenotazione 
 
@@ -79,42 +78,9 @@ E.G.)
 * 400 Bad Request (JSON non valido)
 * 500 Internal Server Error
 
-### PUT
+### `/reservation/{id}`
 
-**Descrizione**: Fa una Update (con eventual upsert) di una Prenotazione identificata da un id
-
-**Parametri**: ci deve essere l'header `Content-Type: application/json`.
-
-**Body richiesta**: rappresentazione in formato JSON della Prenotazione: (il body deve contenere l'id della Prenotazione da modificare)
-
-```json
-{
-        "id": "1"
-        "nameCustomer": "Name",
-        "surnameCustomer": "surname",
-        "screening": "1",
-        "date": "2023-10-01",
-        "time": "09:33:00",
-        "positions": [
-            "A1",
-            "B2"
-        ]
-}
-```
-
-**Risposta**: Se esiste una Prenotazione identificata dal id mandato, viene modificata la prenotazione e non viene restituito nulla nel body. 
-In caso non esiste una Prenotazione identificata dal id viene creata una nuova Prenotazione (upsert), il body è vuoto e la risorsa creata è indicata nell'header `Location`.
-
-**Codici di stato restituiti**:
-
-* 201 Created (Upsert)
-* 201 No Content (Modificato)
-* 400 Bad Request (JSON non valido)
-* 500 Internal Server Error
-
-## `/reservation/{id}`
-
-### GET
+#### GET
 
 **Descrizione**: restituisce la Prenotazione con l'id fornito.
 
@@ -144,7 +110,7 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 * 404 Not Found (Prenotazione non trovata)
 * 500 Internal Server Error
 
-### DELETE
+#### DELETE
 
 **Descrizione**: Elimina la Prenotazione identificata dal'id fornito.
 
@@ -160,11 +126,43 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 * 404 Not Found (Prenotazione non trovata)
 * 500 Internal Server Error
 
+#### PUT
+
+**Descrizione**: Fa una Update (con eventual upsert) di una Prenotazione identificata da un id
+
+**Parametri**: ci deve essere l'header `Content-Type: application/json` e un path paramteter `id` che rappresenta l'identificativo della Prenotazione da aggiornare.
+
+**Body richiesta**: rappresentazione in formato JSON della Prenotazione: (il body deve contenere l'id della Prenotazione da modificare)
+
+```json
+{
+        "nameCustomer": "Name",
+        "surnameCustomer": "surname",
+        "screening": "1",
+        "date": "2023-10-01",
+        "time": "09:33:00",
+        "positions": [
+            "A1",
+            "B2"
+        ]
+}
+```
+
+**Risposta**: Se esiste una Prenotazione identificata dal `id` mandato, viene modificata la prenotazione e non viene restituito nulla nel body. 
+In caso non esiste una Prenotazione identificata dal id viene creata una nuova Prenotazione (upsert), il body è vuoto e la risorsa creata è indicata nell'header `Location`.
+
+**Codici di stato restituiti**:
+
+* 201 Created (Upsert)
+* 201 No Content (Modificato)
+* 400 Bad Request (JSON non valido)
+* 500 Internal Server Error
+
 ## Proiezione
 
-## `/screening`
+### `/screening`
 
-### GET
+#### GET
 
 **Descrizione**: Restituisce l'elenco di tutte le Proiezioni.
 
@@ -199,9 +197,9 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 * 200 OK
 * 500 500 Internal Server Error
 
-## `/screening/{id}`
+### `/screening/{id}`
 
-### GET
+#### GET
 
 **Descrizione**: Restituisce la Sala indentificata da `{id}` 
 
@@ -232,9 +230,9 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 
 ## Sala
 
-## `/hall`
+### `/hall`
 
-### GET
+#### GET
 
 **Descrizione**: Restituisce l'elenco di tutte le Sale.
 
@@ -264,9 +262,9 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 * 200 OK
 * 500 500 Internal Server Error
 
-## `/hall/{id}`
+### `/hall/{id}`
 
-### GET
+#### GET
 
 **Descrizione**: Restituisce la Sala indentificata da `{id}` 
 
@@ -296,9 +294,9 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 
 ## Film
 
-## `/movie`
+### `/movie`
 
-### GET
+#### GET
 
 **Descrizione**: Restituisce l'elenco di tutti i Film.
 
@@ -329,9 +327,9 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 * 200 OK
 * 500 500 Internal Server Error
 
-## `/movie/{id}`
+### `/movie/{id}`
 
-### GET
+#### GET
 
 **Descrizione**: Restituisce il Film indentificata da `{id}` 
 
