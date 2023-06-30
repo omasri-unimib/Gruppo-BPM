@@ -19,12 +19,6 @@ public class Main {
 	public static final String TRANSM_DEL = "%";
 	public static final String SEP_DEL = ":";
 	
-	// Non riguarda il protocollo, ma è specifico a questa applcazione
-	// Rappresenta la posizione in cui viene specificato il tipo di dato
-	// (sala, prenotazione, film ... ) nel DataBase specifico a 
-	// questa applicazione. 
-	public static final int TYPE_OFFSET_VALUE = 3; 
-	
     public static final int PORT = 8081;
     private static HashMap<String, String> db;
 
@@ -36,7 +30,7 @@ public class Main {
      */
     public static void startServer() {
     	
-    	System.out.println("Path: " + Paths.get(".").toAbsolutePath().normalize().toString());
+    	System.out.println("Starting DB Server.");
     	
     	db = new HashMap<String, String>();
     	
@@ -45,7 +39,6 @@ public class Main {
     		String s = Files.readString(Paths.get("data.csv"));
     		String[] records = s.split(EOL);
     		for(int i = 0; i < records.length; i++) {
-    			System.out.println(records[i]);
     			db.put(records[i].split(",")[0], records[i].split(",")[1]); 
     		}
     		
@@ -107,6 +100,7 @@ public class Main {
                 
                 	case "READ-VALUE-QUERY":
 					out.println(readValueQuery(db, rcv));
+					out.println(".");
                     System.out.println("Written");
             		break;
             		
@@ -115,20 +109,26 @@ public class Main {
     					out.println(readAllContaining(db, 
     							rcv.split(TRANSM_DEL)[1], 
 							    Integer.parseInt(rcv.split(TRANSM_DEL)[2])));
+    					out.println(".");
                         System.out.println("Written");
                 		break;
                 		
                 	case "READ-VALUE":
                 		out.println(readByKey(db, rcv.split(TRANSM_DEL)[1]));
+                		out.println(".");
                 		System.out.println("Written");
                 		break;
                 		
                 	case "WRITE-VALUE":
                 		String key = generateKey(db);
                 		out.println(writeKeyValue(db, key, rcv.split(TRANSM_DEL)[1]));
+                		out.println(".");
+                		System.out.println("Written");
+                		break;
                 		
                 	case "WRITE-KEY-VALUE":
                 		out.println(writeKeyValue(db, rcv.split(TRANSM_DEL)[1], rcv.split(TRANSM_DEL)[2]));
+                		out.println(".");
                 		System.out.println("Written");
                 		break;
                 		
@@ -138,8 +138,15 @@ public class Main {
                 		System.out.println("Written");
                 		break;
                 		
+                	case "DELETE":
+                		out.println(deleteByKey(db, rcv.split(TRANSM_DEL)[1]));
+                		out.println(".");
+                		System.out.println("Written");
+                		break;
+                		
                 	default:
                 		out.println("Command Not Recognized");
+                		out.println(".");                		
                         System.out.println("Written");
                 		break;
                 }
@@ -271,7 +278,7 @@ public class Main {
     }
     
     public static boolean compareWithOperator(String s1, String s2, String op) {
-    	
+
     	switch (op.toUpperCase()){
     	
 	    	case "EQ":
@@ -288,5 +295,20 @@ public class Main {
     	
     	return false;
     }
+    
+    
+    public static String deleteByKey(HashMap<String, String> db, String key) {
+    	if(!db.containsKey(key)) {
+    		return "NOT-FOUND";
+    	}
+    	
+    	if(db.get(key) == null) {
+    		db.remove(key);
+    		return "DONE";
+    	}
+    	
+    	return (db.remove(key) != null) ? "DONE" : "NOT-FOUND";
+    }
+    
 }
 

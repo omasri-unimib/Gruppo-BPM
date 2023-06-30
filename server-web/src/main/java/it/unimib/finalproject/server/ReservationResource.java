@@ -70,43 +70,6 @@ public class ReservationResource extends Protocol {
 
         return Response.ok(result).build();
 
-        //return Response.ok(temp).build();
-    }
-
-    /**
-     * Implementazione di GET "/reservation/{id}".
-     */
-    @Path("/{id}")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getReservation(@PathParam("id") String id) {
-        // Si apre una socket verso il database, si ottiene il contatto con
-        // l'ID specificato.
-
-        List<Reservation> result = new ArrayList<Reservation>();
-        boolean flag = false;
-
-    	try {
-
-            String command = READ_ID_COMMAND + TRANSM_DEL + id;
-
-            result = readObject(command, Reservation.class);
-
-            if(result.size() > 0)
-                flag = true;
-            else
-                flag = false;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-            return Response.serverError().build();
-		}
-
-        if (flag == true)
-            return Response.ok(result.get(0)).build();
-        else
-            return Response.status(Response.Status.NOT_FOUND).build();
-
     }
 
     /**
@@ -202,11 +165,46 @@ public class ReservationResource extends Protocol {
     }
 
     /**
+     * Implementazione di GET "/reservation/{id}".
+     */
+    @Path("/{id}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getReservation(@PathParam("id") String id) {
+
+        List<Reservation> result = new ArrayList<Reservation>();
+        boolean flag = false;
+
+    	try {
+
+            String command = READ_ID_COMMAND + TRANSM_DEL + id;
+
+            result = readObject(command, Reservation.class);
+
+            if(result.size() > 0)
+                flag = true;
+            else
+                flag = false;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+            return Response.serverError().build();
+		}
+
+        if (flag == true)
+            return Response.ok(result.get(0)).build();
+        else
+            return Response.status(Response.Status.NOT_FOUND).build();
+
+    }
+
+    /**
      * Implementazione di PUT "/reservation".
      */
+    @Path("/{id}")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response putReservation(String body) {
+    public Response putReservation(String body, @PathParam("id") String id) {
 
         var reservation = new Reservation();
         System.out.println("PUT" + body);
@@ -225,10 +223,10 @@ public class ReservationResource extends Protocol {
 
             reservation = mapper.readValue(body, Reservation.class);
 
-            if (reservation.anyUnset() || reservation.getId() == null)
+            if (reservation.anyUnset() || id == null)
                 return Response.status(Response.Status.BAD_REQUEST).build();
 
-            out.println("WRITE-KEY-VALUE" + TRANSM_DEL + reservation.getId() + TRANSM_DEL + reservation.Serialize());
+            out.println("WRITE-KEY-VALUE" + TRANSM_DEL + id + TRANSM_DEL + reservation.Serialize());
             out.println(".");
             out.flush();
 
@@ -280,8 +278,8 @@ public class ReservationResource extends Protocol {
     /**
      * Implementazione di DELETE "/reservation/{id}".
      */
-    @DELETE
     @Path("/{id}")
+    @DELETE
     public Response deleteReservation(@PathParam("id") String id) {
         System.out.println("ssss");
         PrintWriter out;
