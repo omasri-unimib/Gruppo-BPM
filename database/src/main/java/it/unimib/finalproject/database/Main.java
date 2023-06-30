@@ -100,6 +100,7 @@ public class Main {
                 
                 	case "READ-VALUE-QUERY":
 					out.println(readValueQuery(db, rcv));
+					out.println(".");
                     System.out.println("Written");
             		break;
             		
@@ -108,20 +109,26 @@ public class Main {
     					out.println(readAllContaining(db, 
     							rcv.split(TRANSM_DEL)[1], 
 							    Integer.parseInt(rcv.split(TRANSM_DEL)[2])));
+    					out.println(".");
                         System.out.println("Written");
                 		break;
                 		
                 	case "READ-VALUE":
                 		out.println(readByKey(db, rcv.split(TRANSM_DEL)[1]));
+                		out.println(".");
                 		System.out.println("Written");
                 		break;
                 		
                 	case "WRITE-VALUE":
                 		String key = generateKey(db);
                 		out.println(writeKeyValue(db, key, rcv.split(TRANSM_DEL)[1]));
+                		out.println(".");
+                		System.out.println("Written");
+                		break;
                 		
                 	case "WRITE-KEY-VALUE":
                 		out.println(writeKeyValue(db, rcv.split(TRANSM_DEL)[1], rcv.split(TRANSM_DEL)[2]));
+                		out.println(".");
                 		System.out.println("Written");
                 		break;
                 		
@@ -139,6 +146,7 @@ public class Main {
                 		
                 	default:
                 		out.println("Command Not Recognized");
+                		out.println(".");                		
                         System.out.println("Written");
                 		break;
                 }
