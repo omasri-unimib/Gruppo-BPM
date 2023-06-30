@@ -7,7 +7,7 @@ import java.net.*;
 import java.util.*;
 import java.io.*;
 
-public abstract class Protocol {
+public abstract class Resource {
     public static final DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm:ss");
 

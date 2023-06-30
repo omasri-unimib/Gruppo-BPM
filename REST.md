@@ -11,18 +11,16 @@
 
 **Parametri**: Sono previsiti 3 parametri 
 
-- `/reservation?screening={idScreening}` filtra per tutte le Prenotazioni relative ad una Proiezione identificata da idScreening.
-  - E.G. /reservation?screening=1
+- `/reservation?screening={idScreening}` filtra per tutte le Prenotazioni afferenti ad una Proiezione identificata da idScreening.
+  - E.G.) /reservation?screening=1
 - `/reservation?date={data: yyyy-MM-dd}` filtra per tutte le Prenotazioni la cui data e' maggiore di quella inserita per parametro.
-  - E.G. /reservation?date=2023-10-01
+  - E.G.) /reservation?date=2023-10-01
 - `/reservation?time={tempo: HH:mm:ss}` filtra per tutte le Prenotazioni le cui ore e secondi sono maggiori di quelli inseriti per parametro.
-  - E.G. /reservation?time=09:33:00
+  - E.G.) /reservation?time=09:33:00
 
 **Body richiesta**: nulla
 
-**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una lista di Prenotazioni,dove l'oggetto Prenotazione e' un oggetto JSON del tipo:
-
-E.G.)
+**Risposta**: In caso di successo viene restituita la rappresentazione in JSON di una lista di Prenotazioni, dove l'oggetto Prenotazione e' un oggetto JSON del tipo:
 
 ```json
 [
@@ -54,7 +52,7 @@ E.G.)
 
 **Parametri**: ci deve essere l'header `Content-Type: application/json`.
 
-**Body richiesta**: rappresentazione in formato JSON della Prenotazione:
+**Body richiesta**: rappresentazione in formato JSON della Prenotazione (senza id):
 
 ```json
 {
@@ -104,6 +102,7 @@ E.G.)
         ]
 }
 ```
+
 **Codici di stato restituiti**:
 
 * 200 OK
@@ -154,7 +153,7 @@ In caso non esiste una Prenotazione identificata dal id viene creata una nuova P
 **Codici di stato restituiti**:
 
 * 201 Created (Upsert)
-* 201 No Content (Modificato)
+* 204 No Content (Modificato)
 * 400 Bad Request (JSON non valido)
 * 500 Internal Server Error
 

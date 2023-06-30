@@ -5,18 +5,26 @@ import java.time.*;
 import java.util.*;
 
 /**
- * Rappresenta una Prenotazione.
+ * Rappresenta una Sala.
  */
 public class Hall implements Serializable{
 
     private String id;
 
+    //1
+    //Nome della Sala.
     private String name;
 
+    //2
+    //Piano in cui si trova la sala.
     private int floor;
 
+    //3
+    //Numero Massimo di posti Riga
     private String postiRiga;
 
+    //4
+    //Numero Massimo di posti Colonna
     private int postiColonna;
 
     public String getId() {
