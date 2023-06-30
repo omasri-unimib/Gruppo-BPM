@@ -15,7 +15,7 @@ import java.net.*;
 import java.time.LocalDate;
 
 @Path("screening")
-public class ScreeningResource extends Protocol {
+public class ScreeningResource extends Resource {
 
     /**
      * Implementazione di GET "/screening".

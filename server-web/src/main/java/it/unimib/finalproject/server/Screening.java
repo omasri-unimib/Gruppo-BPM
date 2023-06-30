@@ -10,19 +10,23 @@ import java.util.*;
  * Rappresenta una Proiezione.
  */
 public class Screening implements Serializable {
-    // Identificativo univoco della Proiezione.
+
     private String id;
 
-    // Nome del Cliente associato alla Prenotazione.
+    //1
+    // id della Sala che ospita la Proiezione.
     private String idHall;
 
-    // Nome del Cliente associato alla Prenotazione.
+    //2
+    // id del Film che viene Proiettato.
     private String idMovie;
 
-   // data associata alla prenotazione
+    //3
+    // Data associata alla Proiezione.
     private LocalDate date;
 
-    // ora associata alla prenotazione
+    //4
+    // Ora associata alla Proiezione.
     private LocalTime time;
 
     public String getId() {

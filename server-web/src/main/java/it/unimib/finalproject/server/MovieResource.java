@@ -14,7 +14,7 @@ import java.io.*;
 import java.net.*;
 
 @Path("movie")
-public class MovieResource extends Protocol {
+public class MovieResource extends Resource {
 
     /**
      * Implementazione di GET "/movie".
@@ -22,8 +22,6 @@ public class MovieResource extends Protocol {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMovie() {
-        // Si apre una socket verso il database, si ottengono i dati e si
-        // costruisce la risposta.
 
         List<Movie> result = new ArrayList<Movie>();
 
@@ -50,8 +48,6 @@ public class MovieResource extends Protocol {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMovie(@PathParam("id") String id) {
-        // Si apre una socket verso il database, si ottiene il contatto con
-        // l'ID specificato.
 
         List<Movie> result = new ArrayList<Movie>();
         boolean flag = false;

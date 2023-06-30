@@ -14,7 +14,7 @@ import java.io.*;
 import java.net.*;
 
 @Path("hall")
-public class HallResource extends Protocol {
+public class HallResource extends Resource {
 
     /**
      * Implementazione di GET "/hall".
@@ -22,8 +22,6 @@ public class HallResource extends Protocol {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHall() {
-        // Si apre una socket verso il database, si ottengono i dati e si
-        // costruisce la risposta.
 
         List<Hall> result = new ArrayList<Hall>();
 
@@ -48,8 +46,6 @@ public class HallResource extends Protocol {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHall(@PathParam("id") String id) {
-        // Si apre una socket verso il database, si ottiene il contatto con
-        // l'ID specificato.
 
         List<Hall> result = new ArrayList<Hall>();
         boolean flag = false;

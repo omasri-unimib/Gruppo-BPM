@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.text.SimpleDateFormat;
 
 @Path("reservation")
-public class ReservationResource extends Protocol {
+public class ReservationResource extends Resource {
 
     /**
      * Implementazione  di GET "/reservation".
@@ -27,8 +27,6 @@ public class ReservationResource extends Protocol {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getReservation(@QueryParam("screening") String screening, @QueryParam("date") String date, @QueryParam("time") String time) {
-        // Si apre una socket verso il database, si ottengono i dati e si
-        // costruisce la risposta.
         List<Reservation> result = new ArrayList<Reservation>();
 
         System.out.println("hello");
@@ -83,8 +81,6 @@ public class ReservationResource extends Protocol {
 
         var reservation = new Reservation();
         System.out.println("POST " + body);
-        // Si apre una socket verso il database, si ottiene un nuovo ID, lo si
-        // applica al contatto e lo si aggiunge.
 
         PrintWriter out;
         BufferedReader in;
@@ -210,8 +206,6 @@ public class ReservationResource extends Protocol {
 
         var reservation = new Reservation();
         System.out.println("PUT" + body);
-        // Si apre una socket verso il database, si ottiene un nuovo ID, lo si
-        // applica al contatto e lo si aggiunge.
 
         PrintWriter out;
         BufferedReader in;

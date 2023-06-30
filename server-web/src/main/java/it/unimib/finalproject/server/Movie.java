@@ -11,14 +11,24 @@ public class Movie implements Serializable {
 
     private String id;
 
+    //1
+    //Nome del Film.
     private String name;
 
+    //2
+    //Genere del Film.
     private String genre;
 
+    //3
+    //Direttore del Film.
     private String director;
 
+    //4
+    //Durata del Film in Ore.
     private double duration;
 
+    //5
+    //Data di Uscita del film.
     private LocalDate releaseDate;
 
     public String getId() {

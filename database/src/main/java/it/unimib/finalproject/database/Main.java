@@ -15,7 +15,7 @@ public class Main {
      * Porta di ascolto.
      */
 
-    public static final String EOL = "\n";
+    public static final String EOL = System.lineSeparator();
 	public static final String TRANSM_DEL = "%";
 	public static final String SEP_DEL = ":";
 	
