@@ -280,6 +280,9 @@
         }
 
         async function addReservationsDOM() {
+
+            postiOccupati = [];
+
             if (idScreeningShown) {
                 const idScreeningReservation = document.getElementById("inputIdScreening").value;
                 let reservationByIdScreening;
@@ -340,6 +343,9 @@
                     }
                     positions.appendChild(document.createTextNode(positionsText));
 
+
+                    postiOccupati.push.apply(postiOccupati, positionsArray)
+
                     const actions = row.insertCell();
                     actions.setAttribute("align", "center");
                     const editButton = document.createElement("button");
@@ -357,11 +363,7 @@
                         for(b of buttons){
                             b.removeAttribute("disabled");
                         }
-
-                        reservationButton.setAttribute("disabled", "true");
-                        reserveSeatsDOM(hallById, idValue);
-                    });
-                    editButton.addEventListener("click", () => {
+                        
                         editButton.setAttribute("disabled", "true");
                         putReservationDOM(idReservationValue, positions, idScreeningReservation);
                     });
@@ -441,6 +443,8 @@
                     }
                     positions.appendChild(document.createTextNode(positionsText));
 
+                    postiOccupati.push.apply(postiOccupati, positionsArray)
+
                     const actions = row.insertCell();
                     actions.setAttribute("align", "center");
                     const editButton = document.createElement("button");
@@ -448,6 +452,16 @@
                     const editButtonText = document.createTextNode("Modifica");
                     editButton.appendChild(editButtonText);
                     editButton.addEventListener("click", () => {
+                        var r = document.getElementById("reservation");
+                        if (r != null){ 
+                            r.remove()
+                        };
+
+                        var buttons = document.querySelectorAll("button");
+                        for(b of buttons){
+                            b.removeAttribute("disabled");
+                        }
+
                         editButton.setAttribute("disabled", "true");
                         putReservationDOM(idReservationValue, positions, idScreeningValue);
                     });
@@ -526,6 +540,8 @@
                     }
                     positions.appendChild(document.createTextNode(positionsText));
 
+                    postiOccupati.push.apply(postiOccupati, positionsArray)
+
                     const actions = row.insertCell();
                     actions.setAttribute("align", "center");
                     const editButton = document.createElement("button");
@@ -533,6 +549,16 @@
                     const editButtonText = document.createTextNode("Modifica");
                     editButton.appendChild(editButtonText);
                     editButton.addEventListener("click", () => {
+                        var r = document.getElementById("reservation");
+                        if (r != null){ 
+                            r.remove()
+                        };
+
+                        var buttons = document.querySelectorAll("button");
+                        for(b of buttons){
+                            b.removeAttribute("disabled");
+                        }
+
                         editButton.setAttribute("disabled", "true");
                         putReservationDOM(idReservationValue, positions, idScreeningValue);
                     });
@@ -634,8 +660,6 @@
             const form = document.createElement("form");
             form.setAttribute("id", "reservation");
 
-            let postiOccupati = [];
-
             const table = document.createElement("table");
             table.setAttribute("border", "1");
 
@@ -658,7 +682,6 @@
                     actions.appendChild(colonna);
                     colonnaValue = j + 1;
                     value = rigaValue + colonnaValue;
-                    postiOccupati.push(value);
                     const checkbox = document.createElement("input");
                     checkbox.setAttribute("type", "checkbox");
                     checkbox.setAttribute("value", value);
@@ -698,23 +721,31 @@
                     if (document.getElementById("checkbox" + i).checked == true) {
                         reservedSeats.push(document.getElementById("checkbox" + i).value);
                         document.getElementById("checkbox" + i).checked = true;
-                    }
-                    else if(postiOccupati.includes(value)){
-                        checkbox.setAttribute("style", "pointer-events: none;");
-                        checkbox.setAttribute("disabled", "disabled");
-                        actions.setAttribute("style", "background-color: red;");
-                    }
+                        
+                        //document.getElementById("checkbox" + i).removeAttribute("style");
+                    } 
+                    else if(postiOccupati.includes(document.getElementById("checkbox" + i).value)) {
+                        //document.getElementById("checkbox" + i).setAttribute("style", "pointer-events: none;");
+                        document.getElementById("checkbox" + i).setAttribute("disabled", true);
+                    }   
                 }
 
                 tryPutSeats(reservedSeats, reservationById, nameCell);
             });
 
             document.body.appendChild(form);
-
+            console.log(postiOccupati)
             for (let i = 1; i < contId; i++) {
                 for (let j = 0; j < reservationById["positions"].length; j++) {
                     if (document.getElementById("checkbox" + i).value == reservationById["positions"][j]) {
                         document.getElementById("checkbox" + i).checked = true;
+                        document.getElementById("checkbox" + i).removeAttribute("disabled");
+                        //document.getElementById("checkbox" + i).removeAttribute("style");
+                        break;
+                    } 
+                    else if(postiOccupati.includes(document.getElementById("checkbox" + i).value)) {
+                        //document.getElementById("checkbox" + i).setAttribute("style", "pointer-events: none;");
+                        document.getElementById("checkbox" + i).setAttribute("disabled", true);
                     }
                 }
             }

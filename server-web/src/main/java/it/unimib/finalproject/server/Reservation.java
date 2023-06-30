@@ -145,6 +145,6 @@ public class Reservation implements Serializable {
 
     public boolean anyUnset(){
         return !Stream.of(nameCustomer, surnameCustomer, screening, positions, date, time)
-            .allMatch(Objects::nonNull) && Protocol.dateIsValid(date) && Protocol.timeIsValid(time);
+            .allMatch(Objects::nonNull) && Resource.dateIsValid(date) && Resource.timeIsValid(time);
     }
 }

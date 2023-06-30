@@ -28,6 +28,3 @@ Il client Web è invece sono due file HTML chiamati `index.html` e `reservations
 Il server Web si pone in ascolto all'indirizzo `localhost` alla porta `8080`. Il database si pone in ascolto allo stesso indirizzo del server Web ma alla porta `8081`.
 
 
-## Screenshot 
-
-
