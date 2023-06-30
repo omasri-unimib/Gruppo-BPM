@@ -51,6 +51,8 @@
         // asincrona, per questo uso await.
         const response = await fetch(endpoint);
 
+        
+
         // Controllo di eventuali errori.
         if (!response.ok)
           throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
@@ -178,18 +180,21 @@
         //	* method: per indicare il metodo utilizzato,
         //	* headers: gli header utilizati,
         //	* body: il body della richiesta.
+        
         const response = await fetch(endpoint, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
           body: JSON.stringify(reservation)
         });
 
-        if (!response.ok)
+        if (!response.ok){
           throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
-
+        }
         const location = response.headers.get("Location");
+
+        
 
         // Fa lo split e restituisce l'ultima sottostringa, che è l'ID.
         return location.split("/").pop();
@@ -197,6 +202,32 @@
       }
 
       async function getReservationById(id) {
+            // Bisogna effettuare i seguenti passi:
+            //
+            //	1. Chiamare GET "http://localhost:8080/reservation",
+            //	2. Controllare che la chiamata abbia avuto successo,
+            //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+            // L'interpolazione di stringhe permette di inserire espressioni in un
+            // letterale. Comodo per costruire stringhe speciali.
+            //
+            // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+            const endpoint = `${API_URI}/reservation/${id}`;
+
+            // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+            // asincrona, per questo uso await.
+            const response = await fetch(endpoint);
+
+            // Controllo di eventuali errori.
+            if (!response.ok)
+                throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+            // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+            // avviene in modo asicrono, per questo uso "await".
+            return await response.json();
+        }
+
+        async function getReservationByIdScreening(idScreening) {
             // Bisogna effettuare i seguenti passi:
             //
             //	1. Chiamare GET "http://localhost:8080/contacts",
@@ -207,7 +238,7 @@
             // letterale. Comodo per costruire stringhe speciali.
             //
             // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
-            const endpoint = `${API_URI}/reservation/${id}`;
+            const endpoint = `${API_URI}/reservation?screening=${idScreening}`;
 
             // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
             // asincrona, per questo uso await.
@@ -291,7 +322,7 @@
         const id = row.insertCell();
         id.setAttribute("align", "center");
         const idText = document.createTextNode(screening["id"]);
-        idValue = screening["id"];
+        const idValue = screening["id"];
         id.appendChild(idText);
 
         // Aggiunta del nome.
@@ -347,7 +378,7 @@
         const timeText = document.createTextNode(screening["time"]);
         time.appendChild(timeText);
 
-        timeValue = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds();
+        timeValue = timeFormat(currentDate)
 
         const hall = row.insertCell();
         hall.setAttribute("align", "center");
@@ -359,8 +390,11 @@
           onError("Failed to get hall by ID", error);
           return;
         }
+
         const hallText = document.createTextNode(hallById["name"]);
-        hall.appendChild(hallText);
+        hall.appendChild(hallText); 
+
+        
 
         const actions = row.insertCell();
         actions.setAttribute("align", "center");
@@ -369,8 +403,19 @@
         const reservationText = document.createTextNode("Prenota");
         reservationButton.appendChild(reservationText);
         reservationButton.addEventListener("click", () => {
+          var r = document.getElementById("reservation");
+          if (r != null){ 
+            r.remove()
+          };
+
+          var buttons = document.querySelectorAll("button");
+          for(b of buttons){
+          
+            b.removeAttribute("disabled");
+          }
+
           reservationButton.setAttribute("disabled", "true");
-          reserveSeatsDOM(hallById);
+          reserveSeatsDOM(hallById, idValue);
         });
       }
 
@@ -392,16 +437,21 @@
         return time;
       }
 
-      async function reserveSeatsDOM(hall) {
-        document.body.appendChild(document.createElement("br"));
-        document.body.appendChild(document.createElement("br"));
+      async function reserveSeatsDOM(hall, idVal) {
 
+        var postiOccupati = [];
+
+        await getReservationByIdScreening(idVal).then((screening) => screening.forEach((x) => postiOccupati.push.apply(postiOccupati, x.positions)),
+          (error) => onError("Failed to get users", error));
+        
         const form = document.createElement("form");
         form.setAttribute("id", "reservation");
         const inputName = document.createElement("input");
         inputName.setAttribute("type", "text");
         inputName.setAttribute("id", "inputName");
         inputName.setAttribute("placeholder", "Inserisci il tuo nome");
+        form.appendChild(document.createElement("br"));
+        form.appendChild(document.createElement("br"));
         form.appendChild(inputName);
         form.appendChild(document.createElement("br"));
         form.appendChild(document.createElement("br"));
@@ -437,6 +487,13 @@
             checkbox.setAttribute("type", "checkbox");
             checkbox.setAttribute("value", value);
             checkbox.setAttribute("id", "checkbox" + contId);
+
+            actions.setAttribute("style", "background-color: lightgreen;");
+            if(postiOccupati.includes(value)){
+              checkbox.setAttribute("style", "pointer-events: none;");
+              checkbox.setAttribute("disabled", "disabled");
+              actions.setAttribute("style", "background-color: red;");
+            }
             contId++;
             actions.appendChild(checkbox);
             row.appendChild(actions);
@@ -456,13 +513,20 @@
         submit.appendChild(submitText);
         form.appendChild(submit);
         submit.addEventListener("click", () => {
-          newReservationDOM(contId);
+          newReservationDOM(contId, idVal);
         });
 
         document.body.appendChild(form);
+
+        /* 
+        var myform = document.getElementById("reservation");
+        function handleForm(event) { event.preventDefault(); } 
+        myform.addEventListener('submit', handleForm);
+        */
+        
       }
 
-      async function newReservationDOM(contId) {
+      async function newReservationDOM(contId, idV) {
         const name = document.getElementById("inputName").value;
         const surname = document.getElementById("inputSurname").value;
         let reservedSeats = [];
@@ -474,18 +538,23 @@
           }
         }
 
-        try {
-          const reservationId = await newReservation({
+        const reservationId = await newReservation({
             "nameCustomer": name,
             "surnameCustomer": surname,
-            "screening": idHallValue,
+            "screening": idV,
             "date": dateValue,
             "time": timeValue,
             "positions": reservedSeats
-          });
-        } catch (error) {
-          onError("Failed to add a new reservation", error);
-        }
+        });
+
+        location.reload();
+
+      }
+
+      function timeFormat(currentDate){
+        return ((currentDate.getHours() <= 9 ? "0" + currentDate.getHours() : currentDate.getHours()) + ":" + 
+        (currentDate.getMinutes() <= 9 ? "0" + currentDate.getMinutes() : currentDate.getMinutes()) + ":" + 
+        (currentDate.getSeconds() <= 9 ? "0" + currentDate.getSeconds() : currentDate.getSeconds()));
       }
 
       // Ho definito init come una funzione asincrona, per cui l'esecuzione è slegata

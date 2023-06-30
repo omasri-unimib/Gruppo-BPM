@@ -25,7 +25,7 @@
             document.body.appendChild(labelIdScreening);
             document.body.appendChild(document.createElement("br"));
             const idScreening = document.createElement("input");
-            idScreening.setAttribute("type", "number");
+            idScreening.setAttribute("type", "text");
             idScreening.setAttribute("min", "1");
             idScreening.setAttribute("id", "inputIdScreening");
             document.body.appendChild(idScreening);
@@ -167,7 +167,7 @@
             //	1. Chiamare PUT "http://localhost:8080/users/{userId}" con
             //		 nel body la rappresentazione JSON di una stringa,
             //	2. Controllare che la chiamata abbia avuto successo.
-            const endpoint = `${API_URI}/reservation`;
+            const endpoint = `${API_URI}/reservation/`+ updatedReservation["id"];
 
             // In questo caso nella fetch devo passare delle opzioni:
             //	* method: per indicare il metodo utilizzato,
@@ -346,6 +346,21 @@
                     actions.appendChild(editButton);
                     const editButtonText = document.createTextNode("Modifica");
                     editButton.appendChild(editButtonText);
+                    editButton.setAttribute("class", "modifyButton");
+                    editButton.addEventListener("click", () => {
+                        var r = document.getElementById("reservation");
+                        if (r != null){ 
+                            r.remove()
+                        };
+
+                        var buttons = document.querySelectorAll("button");
+                        for(b of buttons){
+                            b.removeAttribute("disabled");
+                        }
+
+                        reservationButton.setAttribute("disabled", "true");
+                        reserveSeatsDOM(hallById, idValue);
+                    });
                     editButton.addEventListener("click", () => {
                         editButton.setAttribute("disabled", "true");
                         putReservationDOM(idReservationValue, positions, idScreeningReservation);
@@ -679,7 +694,7 @@
                 for (let i = 1; i < contId; i++) {
                     if (document.getElementById("checkbox" + i).checked == true) {
                         reservedSeats.push(document.getElementById("checkbox" + i).value);
-                        document.getElementById("checkbox" + i).disabled = true;
+                        document.getElementById("checkbox" + i).checked = true;
                     }
                 }
 
@@ -691,7 +706,7 @@
             for (let i = 1; i < contId; i++) {
                 for (let j = 0; j < reservationById["positions"].length; j++) {
                     if (document.getElementById("checkbox" + i).value == reservationById["positions"][j]) {
-                        document.getElementById("checkbox" + i).disabled = true;
+                        document.getElementById("checkbox" + i).checked = true;
                     }
                 }
             }

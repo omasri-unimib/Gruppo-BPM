@@ -31,6 +31,7 @@ public class ReservationResource extends Protocol {
         // costruisce la risposta.
         List<Reservation> result = new ArrayList<Reservation>();
 
+        System.out.println("hello");
         try {
             System.out.println(dateIsValid(date)+ " " +date);
 
@@ -60,6 +61,7 @@ public class ReservationResource extends Protocol {
                 TRANSM_DEL + "GTE" +
                 TRANSM_DEL + time : "") ;
 
+            System.out.println(command);
             result = readObject(command, Reservation.class);
 
 
@@ -148,7 +150,7 @@ public class ReservationResource extends Protocol {
             try {
                 var uri = new URI("/reservation/" + key);
 
-                return Response.created(uri).build();
+                return Response.created(uri).header("Access-Control-Expose-Headers", "Location").build();
             } catch (URISyntaxException e) {
                 System.out.println(e);
                 return Response.serverError().build();
