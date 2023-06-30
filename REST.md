@@ -1,5 +1,4 @@
-# Progetto Sistemi Distribuiti 2022-2023 - API REST
-
+# Progetto Sistemi Distribuiti 2022-2023 Gruppo BPM - API REST
 
 ## Prenotazioni
 
