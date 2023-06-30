@@ -634,6 +634,8 @@
             const form = document.createElement("form");
             form.setAttribute("id", "reservation");
 
+            let postiOccupati = [];
+
             const table = document.createElement("table");
             table.setAttribute("border", "1");
 
@@ -656,6 +658,7 @@
                     actions.appendChild(colonna);
                     colonnaValue = j + 1;
                     value = rigaValue + colonnaValue;
+                    postiOccupati.push(value);
                     const checkbox = document.createElement("input");
                     checkbox.setAttribute("type", "checkbox");
                     checkbox.setAttribute("value", value);
@@ -695,6 +698,11 @@
                     if (document.getElementById("checkbox" + i).checked == true) {
                         reservedSeats.push(document.getElementById("checkbox" + i).value);
                         document.getElementById("checkbox" + i).checked = true;
+                    }
+                    else if(postiOccupati.includes(value)){
+                        checkbox.setAttribute("style", "pointer-events: none;");
+                        checkbox.setAttribute("disabled", "disabled");
+                        actions.setAttribute("style", "background-color: red;");
                     }
                 }
 

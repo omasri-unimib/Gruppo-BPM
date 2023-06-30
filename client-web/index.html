@@ -304,6 +304,32 @@
 
       }
 
+      async function getScreeningsByDate(date) {
+            // Bisogna effettuare i seguenti passi:
+            //
+            //	1. Chiamare GET "http://localhost:8080/contacts",
+            //	2. Controllare che la chiamata abbia avuto successo,
+            //	3. Restituise l'oggetto (lista di contatti) facendo il parsing del JSON.
+
+            // L'interpolazione di stringhe permette di inserire espressioni in un
+            // letterale. Comodo per costruire stringhe speciali.
+            //
+            // Info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+            const endpoint = `${API_URI}/screening?date=${date}`;
+
+            // Senza parametri, a parte l'URL, fa una chiamata GET. fetch è
+            // asincrona, per questo uso await.
+            const response = await fetch(endpoint);
+
+            // Controllo di eventuali errori.
+            if (!response.ok)
+                throw new Error(`Response from "${endpoint}" was not successful: ${response.status} ${response.statusText}`);
+
+            // Effettua il parsing del JSON e restituisce l'oggetto. Il parsing
+            // avviene in modo asicrono, per questo uso "await".
+            return await response.json();
+        }
+
       // Funziona di utilità che mostra l'errore nella console e in un alert
       // del browser.
       function onError(msg, error) {
@@ -371,7 +397,7 @@
         date.appendChild(dateText);
 
         var currentDate = new Date();
-        dateValue = currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1) + '-' + currentDate.getDate();
+        dateValue = dateFormat(currentDate);
 
         const time = row.insertCell();
         time.setAttribute("align", "center");
@@ -442,7 +468,7 @@
         var postiOccupati = [];
 
         await getReservationByIdScreening(idVal).then((screening) => screening.forEach((x) => postiOccupati.push.apply(postiOccupati, x.positions)),
-          (error) => onError("Failed to get users", error));
+          (error) => onError("Failed to get reservations", error));
         
         const form = document.createElement("form");
         form.setAttribute("id", "reservation");
@@ -557,6 +583,12 @@
         (currentDate.getSeconds() <= 9 ? "0" + currentDate.getSeconds() : currentDate.getSeconds()));
       }
 
+      function dateFormat(currentDate) {
+        return (currentDate.getFullYear() + '-' +
+        ((currentDate.getMonth() + 1) <= 9 ? "0" + (currentDate.getMonth() + 1) : (currentDate.getMonth() + 1)) + '-' +
+        (currentDate.getDate() <= 9 ? "0" + currentDate.getDate() : currentDate.getDate()));
+      }
+
       // Ho definito init come una funzione asincrona, per cui l'esecuzione è slegata
       // dal flusso sequenziale dello script. Il browser si occupa di gestire queste
       // funzioni, che prima o poi verranno eseguite e completate.
@@ -566,8 +598,10 @@
         // getUsers è asincrona, per cui restituisce una Promise che verrà eseguita
         // in modo asincrono. Il metodo then permette di eseguire due funzioni: la
         // prima in caso di successo, la seconda in caso di errore.
-        getScreenings().then((screening) => screening.forEach(addScreeningDOM),
-          (error) => onError("Failed to get users", error));
+        var date = new Date();
+        var dateInit = dateFormat(date);
+        getScreeningsByDate(dateInit).then((screening) => screening.forEach(addScreeningDOM),
+          (error) => onError("Failed to get screenings by date", error));
 
         // Aggiungo l'handler per l'evento di invio al form.
         //const form = document.getElementById("add-contact");
