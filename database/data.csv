@@ -1,0 +1,15 @@
+1,Movie#Interstellar#Science fiction#Christopher Nolan#2#2014-10-26
+2,Movie#Avatar#Action#James Cameron#1.5#2009-01-15
+3,Movie#Batman#Action#Tim Burton#1.3#1989-10-20
+4,Movie#Avatar: The Way of Water#Action#James Cameron#1.8#2022-12-16
+5,Screening#S1#1#2023-06-29#22:00:00
+6,Screening#S2#2#2023-05-29#23:00:00
+7,Screening#S2#4#2023-10-29#19:00:00
+8,Screening#S3#3#2023-10-29#23:00:00
+S1,Hall#Sala 1#1#10#E
+S2,Hall#Sala 2#1#4#C
+S3,Hall#Sala 3#2#20#D
+aba2bfa2-cd78-44ea-93d3-a200a3f5e3d2,Reservation#Omar#Masri#5#2023-06-12#09:16:00#A1#A2#B1#2
+e64471ed-228d-4011-b3cc-275134c64f00,Reservation#Omar#Masri#6#2023-06-12#09:20:00#A1#C1#C2
+501a6f33-28a0-4de4-9c7f-049a0abddf98,Reservation#Cristopher#Beneduce#2#2023-06-07#09:20:00#A2
+e1f01a79-d68a-4a63-ab88-b0c7e795a93f,Reservation#Valentyn#Piskovskyi#1#2023-06-15#10:16:00#A1#B2#C3#D4

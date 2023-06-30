@@ -1,11 +1,16 @@
-# Progetto Sistemi Distribuiti 2022-2023
+# Progetto Sistemi Distribuiti 2022-2023 Gruppo BPM
+
+![BPM](https://www.blitzquotidiano.it/wp/wp/wp-content/uploads/2016/05/bpm.png)
 
 Lo scheletro propone degli esempi dei tre componenti da cui partire.
 
 ## Componenti del gruppo
 
-* Nome Cognome (Matricola) <email>
-* ...
+| Cognome | Nome | Matricola | Email |
+| --- | --- | --- | --- |
+| **B**eneduce | Cristopher | (890393) | c.beneduce@campus.unimib.it |
+| **P**iskovskyi | Valentyn | (886485) | v.piskovskyi@campus.unimib.it |
+| **M**asri | Omar | (879237) | o.masri@campus.unimib.it |
 
 ## Compilazione ed esecuzione
 
@@ -16,8 +21,13 @@ I tre obiettivi possono essere eseguiti insieme in una sola riga di comando da t
 
 Si può anche utilizzare un IDE come Eclipse o IntelliJ IDEA, in tal caso va configurato (per Eclipse si possono seguire le istruzioni mostrate nelle slide del laboratorio 5 sulle Servlet).
 
-Il client Web è invece un solo file HTML chiamato `index.html`, può essere aperto su un qualsiasi browser. È importante disabilitare CORS, come mostrato nel laboratorio 8 su JavaScript (AJAX).
+Il client Web è invece sono due file HTML chiamati `index.html` e `reservations.html`, può essere aperto su un qualsiasi browser. È importante disabilitare CORS, come mostrato nel laboratorio 8 su JavaScript (AJAX).
 
 ## Porte e indirizzi
 
-Il server Web si pone in ascolto all'indirizzo `localhost` alla porta `8080`. Il database si pone in ascolto allo stesso indirizzo del server Web ma alla porta `3030`.
+Il server Web si pone in ascolto all'indirizzo `localhost` alla porta `8080`. Il database si pone in ascolto allo stesso indirizzo del server Web ma alla porta `8081`.
+
+
+## Screenshot 
+
+
